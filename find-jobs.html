@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find Jobs – JobDelite</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --blue: #1a56ff;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff4ff;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(26,86,255,0.10);
+      --radius: 12px;
+    }
+    body { font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--light); min-height: 100vh; }
+
+    /* ── NAVBAR ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 5vw; background: var(--white);
+      position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 1px 0 #e5e7eb;
+    }
+    .logo img { height: 40px; width: auto; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--navy); transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--blue); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-outline {
+      padding: 9px 20px; border: 1.5px solid var(--navy); border-radius: 8px;
+      background: transparent; font-size: 0.88rem; font-weight: 600; color: var(--navy);
+      cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .btn-outline:hover { background: var(--navy); color: var(--white); }
+
+    /* ── SEARCH CONTAINER ── */
+    .search-section { background: var(--white); padding: 30px 5vw; border-bottom: 1px solid #e5e7eb; }
+    .search-bar {
+      display: flex; align-items: center; background: var(--white);
+      border: 1.5px solid #d1d5db; border-radius: 10px; overflow: hidden;
+      box-shadow: var(--shadow); max-width: 900px; margin: 0 auto;
+    }
+    .search-input { display: flex; align-items: center; gap: 8px; padding: 0 14px; flex: 1; }
+    .search-input input, .search-input select {
+      border: none; outline: none; font-size: 0.85rem; font-family: inherit;
+      color: var(--navy); background: transparent; width: 100%; padding: 13px 0;
+    }
+    .divider { width: 1px; height: 28px; background: #d1d5db; flex-shrink: 0; }
+    .search-bar .btn-primary { border-radius: 0; padding: 13px 28px; white-space: nowrap; border: none; background: var(--blue); color: var(--white); font-weight: 600; cursor: pointer; font-family: inherit; }
+    .search-bar .btn-primary:hover { background: #1240d6; }
+
+    /* ── MAIN CONTENT WORKSPACE ── */
+    .jobs-container { display: grid; grid-template-columns: 280px 1fr; gap: 30px; padding: 40px 5vw; max-width: 1400px; margin: 0 auto; }
+    
+    /* Filter Sidebar */
+    .filter-sidebar { background: var(--white); border-radius: var(--radius); padding: 24px; border: 1px solid #e5e7eb; height: fit-content; }
+    .filter-group { margin-bottom: 24px; }
+    .filter-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; color: var(--navy); letter-spacing: 0.5px; }
+    .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--gray); margin-bottom: 10px; cursor: pointer; }
+    .checkbox-label input { width: 16px; height: 16px; accent-color: var(--blue); }
+
+    /* Jobs Output List Grid */
+    .results-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .results-count { font-size: 0.88rem; color: var(--gray); font-weight: 400; }
+    
+    .jobs-list { display: flex; flex-direction: column; gap: 16px; }
+    
+    /* Horizontal Job Cards optimized for browsing */
+    .job-card {
+      background: var(--white); border-radius: var(--radius); padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1.5px solid transparent;
+      transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center;
+    }
+    .job-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--blue-light); }
+    
+    .job-left { display: flex; gap: 16px; align-items: center; }
+    .company-logo {
+      width: 48px; height: 48px; border-radius: 10px; background: var(--blue-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 800; color: var(--blue); flex-shrink: 0;
+    }
+    .job-meta h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .job-meta p { font-size: 0.82rem; color: var(--gray); margin-bottom: 8px; }
+    
+    .job-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { padding: 4px 10px; border-radius: 100px; font-size: 0.73rem; font-weight: 600; }
+    .tag-blue { background: var(--blue-pale); color: var(--blue); }
+    .tag-green { background: #ecfdf5; color: #059669; }
+    .tag-yellow { background: #fffbeb; color: #d97706; }
+
+    .job-right { text-align: right; display: flex; flex-direction: column; gap: 12px; justify-content: center; align-items: flex-end; }
+    .job-salary { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    .job-salary span { font-size: 0.75rem; font-weight: 400; color: var(--gray); }
+    .apply-btn { padding: 9px 18px; background: var(--blue); color: var(--white); border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .2s; }
+    .apply-btn:hover { background: #1240d6; }
+
+    /* ── RESPONSIVE RESPONSIVENESS ── */
+    @media (max-width: 900px) {
+      .jobs-container { grid-template-columns: 1fr; }
+      .filter-sidebar { display: none; } /* Filters wrap hidden for clean mobile presentation */
+      .search-bar { flex-direction: column; }
+      .search-input { width: 100%; border-bottom: 1px solid #d1d5db; }
+      .divider { display: none; }
+      .search-bar .btn-primary { width: 100%; border-radius: 0 0 10px 10px; }
+    }
+
+    @media (max-width: 600px) {
+      .job-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .job-right { text-align: left; align-items: flex-start; width: 100%; border-top: 1px solid #f3f4f6; padding-top: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="index.html" class="logo">
+    <img src="img/logoreal.png" alt="JobDelite Logo"/>
+  </a>
+  <ul class="nav-links">
+    <li><a href="find-jobs.html" class="active">Find Jobs</a></li>
+    <li><a href="#">Companies</a></li>
+    <li><a href="#">Categories</a></li>
+    <li><a href="#">About Us</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-outline" onclick="window.location.href='auth.html'">Login</button>
+  </div>
+</nav>
+
+<!-- LIVE SEARCH BAR WORKSPACE -->
+<section class="search-section">
+  <div class="search-bar">
+    <div class="search-input">
+      <svg width="15" height="15" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Job title, keyword or company key..."/>
+    </div>
+    <div class="divider"></div>
+    <div class="search-input">
+      <svg width="15" height="15" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <input type="text" placeholder="Location, State or Remote..."/>
+    </div>
+    <button class="btn-primary">Find Jobs</button>
+  </div>
+</section>
+
+<!-- MAIN JOBS MARKETPLACE SEARCH ENGINE FEED -->
+<div class="jobs-container">
+  
+  <!-- FILTER SIDEBAR PANELS -->
+  <aside class="filter-sidebar">
+    <div class="filter-group">
+      <div class="filter-title">Job Type</div>
+      <label class="checkbox-label"><input type="checkbox" checked/> Full-Time</label>
+      <label class="checkbox-label"><input type="checkbox"/> Part-Time</label>
+      <label class="checkbox-label"><input type="checkbox"/> Remote Work</label>
+      <label class="checkbox-label"><input type="checkbox"/> Contract Basis</label>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-title">Experience Level</div>
+      <label class="checkbox-label"><input type="checkbox"/> Entry Level</label>
+      <label class="checkbox-label"><input type="checkbox" checked/> Mid-Level</label>
+      <label class="checkbox-label"><input type="checkbox"/> Senior / Director</label>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-title">Industry Domain</div>
+      <label class="checkbox-label"><input type="checkbox" checked/> Development</label>
+      <label class="checkbox-label"><input type="checkbox" checked/> Design</label>
+      <label class="checkbox-label"><input type="checkbox"/> Marketing</label>
+      <label class="checkbox-label"><input type="checkbox"/> Finance</label>
+    </div>
+  </aside>
+
+  <!-- SEARCH OUTPUT VIEWFEED -->
+  <main>
+    <div class="results-header">
+      <div>Available Jobs Posted <span class="results-count">(Showing 3 live job openings)</span></div>
+    </div>
+
+    <div class="jobs-list">
+      <!-- Job Card 1 -->
+      <div class="job-card">
+        <div class="job-left">
+          <div class="company-logo">G</div>
+          <div class="job-meta">
+            <h3>Senior UX Designer</h3>
+            <p>Google · Lagos, Nigeria</p>
+            <div class="job-tags">
+              <span class="tag tag-blue">Full-time</span>
+              <span class="tag tag-green">Remote</span>
+              <span class="tag tag-yellow">Design</span>
+            </div>
+          </div>
+        </div>
+        <div class="job-right">
+          <div class="job-salary">$120k–$150k <span>/ yr</span></div>
+          <button class="apply-btn" onclick="window.location.href='auth.html'">Apply Now</button>
+        </div>
+      </div>
+
+      <!-- Job Card 2 -->
+      <div class="job-card">
+        <div class="job-left">
+          <div class="company-logo">M</div>
+          <div class="job-meta">
+            <h3>Frontend Developer</h3>
+            <p>Microsoft · Abuja, Nigeria</p>
+            <div class="job-tags">
+              <span class="tag tag-blue">Full-time</span>
+              <span class="tag tag-blue">Hybrid</span>
+              <span class="tag tag-yellow">Dev</span>
+            </div>
+          </div>
+        </div>
+        <div class="job-right">
+          <div class="job-salary">$90k–$120k <span>/ yr</span></div>
+          <button class="apply-btn" onclick="window.location.href='auth.html'">Apply Now</button>
+        </div>
+      </div>
+
+      <!-- Job Card 3 -->
+      <div class="job-card">
+        <div class="job-left">
+          <div class="company-logo">A</div>
+          <div class="job-meta">
+            <h3>Product Manager</h3>
+            <p>Amazon · Port Harcourt</p>
+            <div class="job-tags">
+              <span class="tag tag-blue">Full-time</span>
+              <span class="tag tag-green">Remote</span>
+              <span class="tag tag-yellow">Product</span>
+            </div>
+          </div>
+        </div>
+        <div class="job-right">
+          <div class="job-salary">$100k–$140k <span>/ yr</span></div>
+          <button class="apply-btn" onclick="window.location.href='auth.html'">Apply Now</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
