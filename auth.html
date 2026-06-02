@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join JobDelite – Secure Access</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --blue: #1a56ff;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff4ff;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(26,86,255,0.10);
+      --radius: 12px;
+      --danger: #ef4444;
+    }
+    body { font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--light); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    
+    /* Navigation Bar */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 5vw; background: var(--white); box-shadow: 0 1px 0 #e5e7eb;
+      position: sticky; top: 0; z-index: 200;
+    }
+    .logo img { height: 40px; width: auto; transition: height 0.2s; }
+    .back-home { text-decoration: none; font-size: 0.88rem; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 4px; transition: color 0.2s; }
+    .back-home:hover { color: #1240d6; }
+
+    /* Layout Frame Wrapper */
+    .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 5vw; }
+    .auth-card { background: var(--white); width: 100%; max-width: 620px; padding: 36px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid #e5e7eb; transition: all 0.2s; }
+    
+    /* Tab Headers toggles */
+    .auth-tabs { display: flex; border-bottom: 2px solid var(--blue-pale); margin-bottom: 24px; }
+    .tab-btn { flex: 1; padding: 12px; font-family: inherit; font-size: 0.95rem; font-weight: 600; background: none; border: none; color: var(--gray); cursor: pointer; text-align: center; transition: all 0.2s; position: relative; }
+    .tab-btn.active { color: var(--blue); }
+    .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--blue); }
+
+    .role-selector { display: flex; background: var(--blue-pale); padding: 4px; border-radius: 8px; margin-bottom: 24px; }
+    .role-btn { flex: 1; padding: 10px; font-family: inherit; font-size: 0.88rem; font-weight: 600; border: none; border-radius: 6px; background: transparent; color: var(--navy); cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
+    .role-btn.active { background: var(--white); color: var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+    .form-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; text-align: center; letter-spacing: -0.3px; }
+    .form-subtitle { font-size: 0.88rem; color: var(--gray); text-align: center; margin-bottom: 24px; line-height: 1.4; }
+
+    /* Inputs Layout Foundations */
+    .form-group { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group.row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--navy); }
+    .form-group input, .form-group textarea { padding: 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.9rem; color: var(--navy); outline: none; transition: border-color 0.2s; width: 100%; -webkit-appearance: none; }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26, 86, 255, 0.1); }
+    
+    /* Structured Background Sections Design */
+    .section-header { margin: 32px 0 16px 0; padding-top: 16px; border-top: 2px dashed var(--blue-pale); font-size: 1.05rem; font-weight: 700; color: var(--navy); display: flex; flex-direction: column; gap: 2px; }
+    .section-header span { font-size: 0.78rem; color: var(--gray); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .nested-block { background: var(--light); padding: 18px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
+    .block-counter { font-size: 0.8rem; font-weight: 700; color: var(--blue); margin-bottom: 12px; text-transform: uppercase; }
+
+    /* Interactive Upload UI Drop Zone Components */
+    .file-input-wrapper { border: 1.5px dashed #d1d5db; padding: 22px; border-radius: 8px; text-align: center; background: var(--light); cursor: pointer; font-size: 0.85rem; color: var(--gray); display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s; }
+    .file-input-wrapper:hover { border-color: var(--blue); background: var(--blue-pale); color: var(--blue); }
+    .file-input-wrapper.disabled { background: #f3f4f6; border-color: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+    .file-input-wrapper.disabled:hover { color: #94a3b8; background: #f3f4f6; border-color: #cbd5e1; }
+
+    /* Logo Preview Circle Styling */
+    .logo-preview-box { display: none; align-items: center; gap: 14px; background: var(--blue-pale); padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px dashed rgba(26,86,255,0.3); }
+    .logo-preview-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--white); background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .logo-preview-info { font-size: 0.82rem; font-weight: 600; color: var(--navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+    /* Dynamic File Output Registry List layout */
+    .file-list-container { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--blue-pale); border-radius: 6px; border: 1px solid rgba(26,86,255,0.15); font-size: 0.85rem; font-weight: 500; color: var(--navy); animation: fadeIn 0.2s ease-in-out; }
+    .file-item-left { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-item-left svg { flex-shrink: 0; color: var(--blue); }
+    .file-remove-btn { background: none; border: none; color: var(--gray); cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; transition: all 0.2s; }
+    .file-remove-btn:hover { background: #fee2e2; color: var(--danger); }
+    
+    .upload-error { color: var(--danger); font-size: 0.8rem; font-weight: 600; margin-top: 4px; display: none; }
+
+    .btn-submit { width: 100%; padding: 14px; border: none; border-radius: 8px; background: var(--blue); font-size: 0.95rem; font-weight: 700; color: var(--white); cursor: pointer; transition: background 0.2s; margin-top: 24px; font-family: inherit; }
+    .btn-submit:hover { background: #1240d6; }
+
+    .hidden { display: none !important; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE MEDIA QUERIES ── */
+    @media (max-width: 600px) {
+      nav { padding: 12px 4vw; }
+      .logo img { height: 34px; }
+      
+      .auth-container { padding: 16px 3vw; }
+      .auth-card { padding: 24px 16px; border-radius: 10px; }
+      
+      .form-title { font-size: 1.25rem; }
+      .form-subtitle { font-size: 0.82rem; margin-bottom: 20px; }
+      
+      .form-group.row-split { grid-template-columns: 1fr; gap: 14px; }
+      .role-btn { font-size: 0.82rem; padding: 8px 4px; }
+      .tab-btn { font-size: 0.9rem; padding: 10px; }
+      .nested-block { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION HEADER -->
+<nav>
+  <a href="index.html" class="logo"><img src="img/logoreal.png" alt="JobDelite Logo"/></a>
+  <a href="index.html" class="back-home">← <span>Back to Home</span></a>
+</nav>
+
+<!-- CORE AUTH SCREEN FRAME -->
+<div class="auth-container">
+  <div class="auth-card">
+    
+    <!-- Sign In / Register Operational Control Tabs -->
+    <div class="auth-tabs">
+      <button class="tab-btn active" id="tabLogin" onclick="setAuthMode('login')">Sign In</button>
+      <button class="tab-btn" id="tabRegister" onclick="setAuthMode('register')">Register</button>
+    </div>
+
+    <!-- Target Client Profile Type Selection Switcher -->
+    <div class="role-selector">
+      <button class="role-btn active" id="roleSeeker" onclick="setRole('seeker')">Job Seeker</button>
+      <button class="role-btn" id="roleEmployer" onclick="setRole('employer')">Employer / Company</button>
+    </div>
+
+    <h2 class="form-title" id="formHeading">Welcome Back</h2>
+    <p class="form-subtitle" id="formSubheading">Access your curated dashboard workspace.</p>
+
+    <!-- Operational Data Form Pipeline Container -->
+    <form id="authForm" action="dashboard.html" method="GET">
+      <input type="hidden" name="role" id="roleInput" value="seeker">
+      
+      <!-- ======================================================= -->
+      <!-- SECTION 1: CORE BASICS (SHARED/DYNAMIC CORES)           -->
+      <!-- ======================================================= -->
+      
+      <!-- Full Name (Job Seeker Registration Only) -->
+      <div class="form-group reg-only seeker-only hidden">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="John Doe">
+      </div>
+
+      <!-- Company Name (Employer Registration Only) -->
+      <div class="form-group reg-only employer-only hidden">
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" placeholder="e.g. Delite City Solutions">
+      </div>
+
+      <!-- Shared Contact Block (Splits Dynamically on Registration Mode) -->
+      <div class="form-group row-split reg-only hidden">
+        <div>
+          <label for="phone" id="contactPhoneLabel">Phone Number</label>
+          <input type="tel" id="phone" placeholder="+234 (0) 800 000 0000">
+        </div>
+        <div>
+          <label for="location" id="contactLocationLabel">Residential Location</label>
+          <input type="text" id="location" placeholder="e.g. Lagos, Nigeria">
+        </div>
+      </div>
+
+      <!-- Security Credentials Matrix Inputs -->
+      <div class="form-group">
+        <label for="email" id="emailLabel">Email Address</label>
+        <input type="email" id="email" placeholder="name@domain.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- SECTION 2: EMPLOYER SPECIFIC ADDITIONAL INFORMATION      -->
+      <!-- ======================================================= -->
+      <div class="reg-only employer-only hidden">
+        <div class="section-header">
+          Company Profile Details
+          <span>Provide core information about your organization</span>
+        </div>
+
+        <div class="form-group">
+          <label for="businessAddress">Business Address</label>
+          <input type="text" id="businessAddress" placeholder="e.g. 123 Corporate Parkway, Suite 4B">
+        </div>
+
+        <div class="form-group">
+          <label for="companyProfile">Company Profile Information</label>
+          <textarea id="companyProfile" placeholder="Brief summary of your company's mission, values, industry focus, and ecosystem services..."></textarea>
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label>Company Logo</label>
+          <label class="file-input-wrapper" id="logoDropZone">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span id="logoInputLabel">Upload Corporate Logo (PNG, JPG)</span>
+            <input type="file" id="companyLogoFile" style="display:none;" accept="image/png, image/jpeg, image/jpg">
+          </label>
+          
+          <!-- Image Logo live runtime preview component visual tier -->
+          <div class="logo-preview-box" id="logoPreviewWrapper">
+            <img src="#" alt="Logo Preview" class="logo-preview-img" id="logoPreviewElement">
+            <div class="logo-preview-info" id="logoPreviewFilename">logo.png</div>
+            <button type="button" class="file-remove-btn" onclick="clearLogoImageFile()">×</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- SECTION 3: JOB SEEKER - 3 WORK EXPERIENCE FIELDS        -->
+      <!-- ======================================================= -->
+      <div class="reg-only seeker-only hidden">
+        <div class="section-header">
+          Employment History
+          <span>Provide profile scopes for up to 3 past positions</span>
+        </div>
+
+        <!-- Experience Entry 1 -->
+        <div class="nested-block">
+          <div class="block-counter">Work Experience #1</div>
+          <div class="form-group">
+            <label>Place of Work</label>
+            <input type="text" placeholder="Company Name / Corporate Entity">
+          </div>
+          <div class="form-group">
+            <label>Position Held</label>
+            <input type="text" placeholder="e.g. Senior Software Specialist">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Starting Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+            <div>
+              <label>Ending Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY or Present">
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience Entry 2 -->
+        <div class="nested-block">
+          <div class="block-counter">Work Experience #2</div>
+          <div class="form-group">
+            <label>Place of Work</label>
+            <input type="text" placeholder="Company Name / Corporate Entity">
+          </div>
+          <div class="form-group">
+            <label>Position Held</label>
+            <input type="text" placeholder="e.g. Frontend UI Developer">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Starting Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+            <div>
+              <label>Ending Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience Entry 3 -->
+        <div class="nested-block">
+          <div class="block-counter">Work Experience #3</div>
+          <div class="form-group">
+            <label>Place of Work</label>
+            <input type="text" placeholder="Company Name / Corporate Entity">
+          </div>
+          <div class="form-group">
+            <label>Position Held</label>
+            <input type="text" placeholder="e.g. Technical Trainee Associate">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Starting Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+            <div>
+              <label>Ending Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- SECTION 4: JOB SEEKER - 4 ACADEMIC QUALIFICATIONS       -->
+      <!-- ======================================================= -->
+      <div class="reg-only seeker-only hidden">
+        <div class="section-header">
+          Educational Qualifications
+          <span>Complete 4 background academic profiles</span>
+        </div>
+
+        <!-- Academic Node 1 -->
+        <div class="nested-block">
+          <div class="block-counter">Educational Profile #1</div>
+          <div class="form-group">
+            <label>School Attended</label>
+            <input type="text" placeholder="University, College, or Learning Institute">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Course of Study</label>
+              <input type="text" placeholder="e.g. B.Sc Computer Science">
+            </div>
+            <div>
+              <label>Graduation Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Grade / Qualification Attained</label>
+            <input type="text" placeholder="e.g. First Class Honours, Degree, Master's">
+          </div>
+        </div>
+
+        <!-- Academic Node 2 -->
+        <div class="nested-block">
+          <div class="block-counter">Educational Profile #2</div>
+          <div class="form-group">
+            <label>School Attended</label>
+            <input type="text" placeholder="University, College, or Learning Institute">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Course of Study</label>
+              <input type="text" placeholder="e.g. Associate Technical Diploma">
+            </div>
+            <div>
+              <label>Graduation Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Grade / Qualification Attained</label>
+            <input type="text" placeholder="e.g. Distinction, Diploma Certificate">
+          </div>
+        </div>
+
+        <!-- Academic Node 3 -->
+        <div class="nested-block">
+          <div class="block-counter">Educational Profile #3</div>
+          <div class="form-group">
+            <label>School Attended</label>
+            <input type="text" placeholder="High School / College Academy Name">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Course of Study</label>
+              <input type="text" placeholder="e.g. Science / Arts Department Focus">
+            </div>
+            <div>
+              <label>Graduation Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Grade / Qualification Attained</label>
+            <input type="text" placeholder="e.g. High School Graduation Certificate, SSCE">
+          </div>
+        </div>
+
+        <!-- Academic Node 4 -->
+        <div class="nested-block">
+          <div class="block-counter">Educational Profile #4</div>
+          <div class="form-group">
+            <label>School Attended</label>
+            <input type="text" placeholder="Other Specialized Institute or Center">
+          </div>
+          <div class="form-group row-split">
+            <div>
+              <label>Course of Study</label>
+              <input type="text" placeholder="e.g. Professional Development Program">
+            </div>
+            <div>
+              <label>Graduation Year</label>
+              <input type="number" min="1900" max="2100" placeholder="YYYY">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Grade / Qualification Attained</label>
+            <input type="text" placeholder="e.g. Technical Specialist Certification">
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================================================= -->
+      <!-- SECTION 5: JOB SEEKER - DOCUMENT UPLOAD MATRIX          -->
+      <!-- ======================================================= -->
+      <div class="form-group reg-only seeker-only hidden" style="margin-top: 24px;">
+        <label>Upload Resume/CV and Related Documents <span style="font-weight:normal; color:var(--gray);">(At most 4 documents)</span></label>
+        
+        <label class="file-input-wrapper" id="dropZone">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          <span id="fileInputLabel">Click to browse documents (PDF, DOCX)</span>
+          <input type="file" id="resumeFile" style="display:none;" accept=".pdf,.doc,.docx" multiple>
+        </label>
+        
+        <div class="upload-error" id="uploadError">You can only upload a maximum of 4 documents.</div>
+        <div class="file-list-container" id="fileRegistryList"></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Sign In to Dashboard</button>
+    </form>
+  </div>
+</div>
+
+<!-- DYNAMIC APPLICATION INTERACTIVE INTERFACE JAVASCRIPT LOGIC -->
+<script>
+  let currentMode = 'login';
+  let currentRole = 'seeker';
+  
+  // Tracks job seeker documents collection
+  let uploadedFilesCollection = [];
+
+  function setAuthMode(mode) {
+    currentMode = mode;
+    document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+    
+    document.getElementById('formHeading').innerText = mode === 'login' ? 'Welcome Back' : 'Create Your Account';
+    document.getElementById('formSubheading').innerText = mode === 'login' ? 'Access your curated dashboard workspace.' : 'Get started searching jobs or hiring top talent today.';
+    document.getElementById('submitBtn').innerText = mode === 'login' ? 'Sign In to Dashboard' : 'Complete Registration';
+    
+    renderDynamicFields();
+  }
+
+  function setRole(role) {
+    currentRole = role;
+    document.getElementById('roleInput').value = role;
+    document.getElementById('roleSeeker').classList.toggle('active', role === 'seeker');
+    document.getElementById('roleEmployer').classList.toggle('active', role === 'employer');
+    
+    // Switch localized labeling parameters based on profile roles
+    document.getElementById('emailLabel').innerText = role === 'employer' ? 'Work Email Address' : 'Email Address';
+    document.getElementById('contactPhoneLabel').innerText = role === 'employer' ? 'Company Contact Number' : 'Phone Number';
+    document.getElementById('contactLocationLabel').innerText = role === 'employer' ? 'Headquarters / Location' : 'Residential Location';
+    
+    renderDynamicFields();
+  }
+
+  function renderDynamicFields() {
+    const regFields = document.querySelectorAll('.reg-only');
+    const seekerFields = document.querySelectorAll('.seeker-only');
+    const employerFields = document.querySelectorAll('.employer-only');
+
+    regFields.forEach(f => f.classList.add('hidden'));
+    seekerFields.forEach(f => f.classList.add('hidden'));
+    employerFields.forEach(f => f.classList.add('hidden'));
+
+    if (currentMode === 'register') {
+      regFields.forEach(f => {
+        if (!f.classList.contains('seeker-only') && !f.classList.contains('employer-only')) {
+          f.classList.remove('hidden');
+        }
+      });
+      if (currentRole === 'seeker') seekerFields.forEach(f => f.classList.remove('hidden'));
+      if (currentRole === 'employer') employerFields.forEach(f => f.classList.remove('hidden'));
+    }
+  }
+
+  /* ───────────────────────────────────────────────────────── */
+  /* JOB SEEKER DOCS ENGINE SYSTEMS ARCHITECTURE               */
+  /* ───────────────────────────────────────────────────────── */
+  const fileInput = document.getElementById('resumeFile');
+  const dropZone = document.getElementById('dropZone');
+  const fileRegistryList = document.getElementById('fileRegistryList');
+  const uploadError = document.getElementById('uploadError');
+  const fileInputLabel = document.getElementById('fileInputLabel');
+
+  fileInput.addEventListener('change', function(e) {
+    handleFilesSubmission(this.files);
+    this.value = '';
+  });
+
+  function handleFilesSubmission(files) {
+    uploadError.style.display = 'none';
+    if (uploadedFilesCollection.length + files.length > 4) {
+      uploadError.style.display = 'block';
+      return;
+    }
+    for (let i = 0; i < files.length; i++) {
+      if (!uploadedFilesCollection.some(f => f.name === files[i].name && f.size === files[i].size)) {
+        uploadedFilesCollection.push(files[i]);
+      }
+    }
+    refreshFileRegistryUI();
+  }
+
+  function removeFileRecord(index) {
+    uploadedFilesCollection.splice(index, 1);
+    uploadError.style.display = 'none';
+    refreshFileRegistryUI();
+  }
+
+  function refreshFileRegistryUI() {
+    fileRegistryList.innerHTML = '';
+    uploadedFilesCollection.forEach((file, index) => {
+      const itemNode = document.createElement('div');
+      itemNode.className = 'file-item';
+      itemNode.innerHTML = `
+        <div class="file-item-left">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span>${file.name}</span>
+        </div>
+        <button type="button" class="file-remove-btn" onclick="removeFileRecord(${index})">×</button>
+      `;
+      fileRegistryList.appendChild(itemNode);
+    });
+
+    if (uploadedFilesCollection.length >= 4) {
+      dropZone.classList.add('disabled');
+      fileInputLabel.innerText = 'Document limit reached (Max 4)';
+      fileInput.disabled = true;
+    } else {
+      dropZone.classList.remove('disabled');
+      fileInputLabel.innerText = 'Click to browse documents (PDF, DOCX)';
+      fileInput.disabled = false;
+    }
+  }
+
+  /* ───────────────────────────────────────────────────────── */
+  /* EMPLOYER LOGO PREVIEW LIVE SUB-ENGINE LOGIC                */
+  /* ───────────────────────────────────────────────────────── */
+  const logoInput = document.getElementById('companyLogoFile');
+  const logoDropZone = document.getElementById('logoDropZone');
+  const logoPreviewWrapper = document.getElementById('logoPreviewWrapper');
+  const logoPreviewElement = document.getElementById('logoPreviewElement');
+  const logoPreviewFilename = document.getElementById('logoPreviewFilename');
+
+  logoInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      const targetFile = this.files[0];
+      logoPreviewFilename.innerText = targetFile.name;
+      
+      const fileReader = new FileReader();
+      fileReader.onload = function(e) {
+        logoPreviewElement.src = e.target.result;
+        logoDropZone.classList.add('hidden');
+        logoPreviewWrapper.style.display = 'flex';
+      }
+      fileReader.readAsDataURL(targetFile);
+    }
+  });
+
+  function clearLogoImageFile() {
+    logoInput.value = '';
+    logoPreviewElement.src = '#';
+    logoPreviewWrapper.style.display = 'none';
+    logoDropZone.classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
