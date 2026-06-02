@@ -75,12 +75,12 @@
     /* ── HERO ── */
     .hero {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 64px 5vw 0; min-height: 500px;
+      padding: 64px 5vw 0; min-height: 600px;
       position: relative; overflow: hidden; gap: 40px;
     }
     .hero::before {
       content: ''; position: absolute; top: -80px; right: -120px;
-      width: 500px; height: 500px;
+      width: 500px; height: 600px;
       background: radial-gradient(circle, #dce9ff 0%, transparent 70%);
       border-radius: 50%; pointer-events: none;
     }
@@ -105,7 +105,7 @@
     
     /* ── DYNAMIC HERO IMAGE CAROUSEL ── */
     .hero-image {
-      flex: 0 0 42%; max-width: 720px; border-radius: 18px; overflow: hidden;
+      flex: 0 0 42%; max-width: 600px; border-radius: 18px; overflow: hidden;
       box-shadow: 0 20px 60px rgba(26,86,255,0.15);
       animation: fadeUp .9s .2s ease both; margin-top: 20px; align-self: flex-end;
       height: 500px; position: relative;
@@ -345,9 +345,6 @@
     <div class="carousel-track" id="carouselTrack">
       <div class="carousel-slide active">
         <img src="img/hero1.jpeg" alt="Professionals working together"/>
-      </div>
-      <div class="carousel-slide">
-        <img src="img/hero2.jpeg" alt="Modern collaborative tech workspace"/>
       </div>
       <div class="carousel-slide">
         <img src="img/hero.png" alt="Business team meeting"/>
