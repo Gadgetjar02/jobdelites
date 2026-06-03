@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Seeker Registration – JobDelite</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --blue: #1a56ff;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff4ff;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(26,86,255,0.10);
+      --radius: 12px;
+      --danger: #ef4444;
+    }
+    body { font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--light); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 5vw; background: var(--white); box-shadow: 0 1px 0 #e5e7eb;
+      position: sticky; top: 0; z-index: 200;
+    }
+    .logo img { height: 40px; width: auto; }
+    .back-home { text-decoration: none; font-size: 0.88rem; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 4px; }
+
+    .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 5vw; }
+    .auth-card { background: var(--white); width: 100%; max-width: 620px; padding: 36px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid #e5e7eb; }
+    
+    .form-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; text-align: center; letter-spacing: -0.3px; }
+    .form-subtitle { font-size: 0.88rem; color: var(--gray); text-align: center; margin-bottom: 24px; line-height: 1.4; }
+
+    .form-group { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group.row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--navy); }
+    .form-group input { padding: 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.9rem; color: var(--navy); outline: none; width: 100%; -webkit-appearance: none; }
+    .form-group input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26, 86, 255, 0.1); }
+    
+    .section-header { margin: 32px 0 16px 0; padding-top: 16px; border-top: 2px dashed var(--blue-pale); font-size: 1.05rem; font-weight: 700; color: var(--navy); display: flex; flex-direction: column; gap: 2px; }
+    .section-header span { font-size: 0.78rem; color: var(--gray); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .nested-block { background: var(--light); padding: 18px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
+    .block-counter { font-size: 0.8rem; font-weight: 700; color: var(--blue); margin-bottom: 12px; text-transform: uppercase; }
+
+    .file-input-wrapper { border: 1.5px dashed #d1d5db; padding: 22px; border-radius: 8px; text-align: center; background: var(--light); cursor: pointer; font-size: 0.85rem; color: var(--gray); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .file-input-wrapper:hover { border-color: var(--blue); background: var(--blue-pale); color: var(--blue); }
+    .file-input-wrapper.disabled { background: #f3f4f6; border-color: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+
+    .file-list-container { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--blue-pale); border-radius: 6px; border: 1px solid rgba(26,86,255,0.15); font-size: 0.85rem; font-weight: 500; color: var(--navy); animation: fadeIn 0.2s ease-in-out; }
+    .file-item-left { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-item-left svg { flex-shrink: 0; color: var(--blue); }
+    .file-remove-btn { background: none; border: none; color: var(--gray); cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; }
+    .file-remove-btn:hover { background: #fee2e2; color: var(--danger); }
+    
+    .upload-error { color: var(--danger); font-size: 0.8rem; font-weight: 600; margin-top: 4px; display: none; }
+    .btn-submit { width: 100%; padding: 14px; border: none; border-radius: 8px; background: var(--blue); font-size: 0.95rem; font-weight: 700; color: var(--white); cursor: pointer; margin-top: 24px; font-family: inherit; }
+    .btn-submit:hover { background: #1240d6; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 600px) {
+      nav { padding: 12px 4vw; }
+      .logo img { height: 34px; }
+      .auth-container { padding: 16px 3vw; }
+      .auth-card { padding: 24px 16px; border-radius: 10px; }
+      .form-title { font-size: 1.25rem; }
+      .form-subtitle { font-size: 0.82rem; margin-bottom: 20px; }
+      .form-group.row-split { grid-template-columns: 1fr; gap: 14px; }
+      .nested-block { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo"><img src="img/logoreal.png" alt="JobDelite Logo"/></a>
+  <a href="index.html" class="back-home">← <span>Back to Home</span></a>
+</nav>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <h2 class="form-title">Create Your Candidate Account</h2>
+    <p class="form-subtitle">Get started searching jobs or hiring top talent today.</p>
+
+    <form id="seekerForm" action="dashboard.html" method="GET">
+      <input type="hidden" name="role" value="seeker">
+      
+      <!-- Core Background Information -->
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="John Doe" required>
+      </div>
+
+      <div class="form-group row-split">
+        <div>
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="+234 (0) 800 000 0000" required>
+        </div>
+        <div>
+          <label for="location">Residential Location</label>
+          <input type="text" id="location" placeholder="e.g. Lagos, Nigeria" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="name@domain.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+
+      <!-- Professional Profile Scope -->
+      <div class="section-header">
+        Employment History
+        <span>Provide profile scopes for up to 3 past positions</span>
+      </div>
+
+      <!-- Experience Entry 1 -->
+      <div class="nested-block">
+        <div class="block-counter">Work Experience #1</div>
+        <div class="form-group">
+          <label>Place of Work</label>
+          <input type="text" placeholder="Company Name / Corporate Entity">
+        </div>
+        <div class="form-group">
+          <label>Position Held</label>
+          <input type="text" placeholder="e.g. Senior Software Specialist">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Starting Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+          <div>
+            <label>Ending Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY or Present">
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience Entry 2 -->
+      <div class="nested-block">
+        <div class="block-counter">Work Experience #2</div>
+        <div class="form-group">
+          <label>Place of Work</label>
+          <input type="text" placeholder="Company Name / Corporate Entity">
+        </div>
+        <div class="form-group">
+          <label>Position Held</label>
+          <input type="text" placeholder="e.g. Frontend UI Developer">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Starting Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+          <div>
+            <label>Ending Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience Entry 3 -->
+      <div class="nested-block">
+        <div class="block-counter">Work Experience #3</div>
+        <div class="form-group">
+          <label>Place of Work</label>
+          <input type="text" placeholder="Company Name / Corporate Entity">
+        </div>
+        <div class="form-group">
+          <label>Position Held</label>
+          <input type="text" placeholder="e.g. Technical Trainee Associate">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Starting Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+          <div>
+            <label>Ending Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+        </div>
+      </div>
+
+      <!-- Educational Qualifications -->
+      <div class="section-header">
+        Educational Qualifications
+        <span>Complete 4 background academic profiles</span>
+      </div>
+
+      <!-- Academic Node 1 -->
+      <div class="nested-block">
+        <div class="block-counter">Educational Profile #1</div>
+        <div class="form-group">
+          <label>School Attended</label>
+          <input type="text" placeholder="University, College, or Learning Institute">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Course of Study</label>
+            <input type="text" placeholder="e.g. B.Sc Computer Science">
+          </div>
+          <div>
+            <label>Graduation Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Grade / Qualification Attained</label>
+          <input type="text" placeholder="e.g. First Class Honours, Degree, Master's">
+        </div>
+      </div>
+
+      <!-- Academic Node 2 -->
+      <div class="nested-block">
+        <div class="block-counter">Educational Profile #2</div>
+        <div class="form-group">
+          <label>School Attended</label>
+          <input type="text" placeholder="University, College, or Learning Institute">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Course of Study</label>
+            <input type="text" placeholder="e.g. Associate Technical Diploma">
+          </div>
+          <div>
+            <label>Graduation Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Grade / Qualification Attained</label>
+          <input type="text" placeholder="e.g. Distinction, Diploma Certificate">
+        </div>
+      </div>
+
+      <!-- Academic Node 3 -->
+      <div class="nested-block">
+        <div class="block-counter">Educational Profile #3</div>
+        <div class="form-group">
+          <label>School Attended</label>
+          <input type="text" placeholder="High School / College Academy Name">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Course of Study</label>
+            <input type="text" placeholder="e.g. Science / Arts Department Focus">
+          </div>
+          <div>
+            <label>Graduation Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Grade / Qualification Attained</label>
+          <input type="text" placeholder="e.g. High School Graduation Certificate, SSCE">
+        </div>
+      </div>
+
+      <!-- Academic Node 4 -->
+      <div class="nested-block">
+        <div class="block-counter">Educational Profile #4</div>
+        <div class="form-group">
+          <label>School Attended</label>
+          <input type="text" placeholder="Other Specialized Institute or Center">
+        </div>
+        <div class="form-group row-split">
+          <div>
+            <label>Course of Study</label>
+            <input type="text" placeholder="e.g. Professional Development Program">
+          </div>
+          <div>
+            <label>Graduation Year</label>
+            <input type="number" min="1900" max="2100" placeholder="YYYY">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Grade / Qualification Attained</label>
+          <input type="text" placeholder="e.g. Technical Specialist Certification">
+        </div>
+      </div>
+
+      <!-- Structured Upload Registry Container -->
+      <div class="form-group" style="margin-top: 24px;">
+        <label>Upload Resume/CV and Related Documents <span style="font-weight:normal; color:var(--gray);">(At most 4 documents)</span></label>
+        
+        <label class="file-input-wrapper" id="dropZone">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          <span id="fileInputLabel">Click to browse documents (PDF, DOCX)</span>
+          <input type="file" id="resumeFile" style="display:none;" accept=".pdf,.doc,.docx" multiple>
+        </label>
+        
+        <div class="upload-error" id="uploadError">You can only upload a maximum of 4 documents.</div>
+        <div class="file-list-container" id="fileRegistryList"></div>
+      </div>
+
+      <button type="submit" class="btn-submit">Complete Registration</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  let uploadedFilesCollection = [];
+  const fileInput = document.getElementById('resumeFile');
+  const dropZone = document.getElementById('dropZone');
+  const fileRegistryList = document.getElementById('fileRegistryList');
+  const uploadError = document.getElementById('uploadError');
+  const fileInputLabel = document.getElementById('fileInputLabel');
+
+  fileInput.addEventListener('change', function(e) {
+    handleFilesSubmission(this.files);
+    this.value = '';
+  });
+
+  function handleFilesSubmission(files) {
+    uploadError.style.display = 'none';
+    if (uploadedFilesCollection.length + files.length > 4) {
+      uploadError.style.display = 'block';
+      return;
+    }
+    for (let i = 0; i < files.length; i++) {
+      if (!uploadedFilesCollection.some(f => f.name === files[i].name && f.size === files[i].size)) {
+        uploadedFilesCollection.push(files[i]);
+      }
+    }
+    refreshFileRegistryUI();
+  }
+
+  function removeFileRecord(index) {
+    uploadedFilesCollection.splice(index, 1);
+    uploadError.style.display = 'none';
+    refreshFileRegistryUI();
+  }
+
+  function refreshFileRegistryUI() {
+    fileRegistryList.innerHTML = '';
+    uploadedFilesCollection.forEach((file, index) => {
+      const itemNode = document.createElement('div');
+      itemNode.className = 'file-item';
+      itemNode.innerHTML = `
+        <div class="file-item-left">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span>${file.name}</span>
+        </div>
+        <button type="button" class="file-remove-btn" onclick="removeFileRecord(${index})">×</button>
+      `;
+      fileRegistryList.appendChild(itemNode);
+    });
+
+    if (uploadedFilesCollection.length >= 4) {
+      dropZone.classList.add('disabled');
+      fileInputLabel.innerText = 'Document limit reached (Max 4)';
+      fileInput.disabled = true;
+    } else {
+      dropZone.classList.remove('disabled');
+      fileInputLabel.innerText = 'Click to browse documents (PDF, DOCX)';
+      fileInput.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
