@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us – JobDelite</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --blue: #1a56ff;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff4ff;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(26,86,255,0.10);
+      --radius: 12px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); overflow-x: hidden; }
+    
+    /* ── NAVBAR ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 5vw; background: var(--white);
+      position: sticky; top: 0; z-index: 220;
+      box-shadow: 0 1px 0 #e5e7eb;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo img { height: 150px; width: auto; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--navy); transition: color .2s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-outline {
+      padding: 9px 20px; border: 1.5px solid var(--navy); border-radius: 8px;
+      background: transparent; font-size: 0.88rem; font-weight: 600; color: var(--navy);
+      cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .btn-outline:hover { background: var(--navy); color: var(--white); }
+    .btn-primary {
+      padding: 9px 20px; border: none; border-radius: 8px; background: var(--blue);
+      font-size: 0.88rem; font-weight: 600; color: var(--white);
+      cursor: pointer; transition: background .2s, transform .15s; font-family: inherit;
+    }
+    .btn-primary:hover { background: #1240d6; transform: translateY(-1px); }
+
+    /* Hamburger */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--navy); border-radius: 2px; transition: all .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile Nav Drawer */
+    .mobile-nav {
+      display: none; position: fixed; top: 67px; left: 0; right: 0;
+      background: var(--white); padding: 20px 5vw 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      z-index: 210; flex-direction: column; gap: 0;
+      max-height: calc(100vh - 67px); overflow-y: auto;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      display: block; padding: 14px 0; font-size: 1rem; font-weight: 600;
+      color: var(--navy); text-decoration: none; border-bottom: 1px solid #f3f4f6;
+      transition: color .2s;
+    }
+    .mobile-nav a:hover { color: var(--blue); }
+    .mobile-nav .mobile-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .mobile-nav .mobile-actions button { flex: 1; padding: 12px; font-size: 0.95rem; }
+
+    /* ── ABOUT HERO SECTION ── */
+    .about-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e293b 100%);
+      color: var(--white);
+      padding: 80px 5vw;
+      text-align: center;
+      position: relative;
+    }
+    .about-hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+    .about-hero p {
+      font-size: 1.1rem;
+      color: #cbd5e1;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ── CORE CONTENT LAYOUT ── */
+    .content-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 5vw;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-bottom: 60px;
+    }
+    .intro-text p {
+      margin-bottom: 20px;
+      color: #374151;
+      font-size: 1.05rem;
+    }
+    .intro-quote {
+      background: var(--blue-pale);
+      border-left: 4px solid var(--blue);
+      padding: 24px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy);
+      box-shadow: 0 4px 24px rgba(26,86,255,0.08);
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: #e5e7eb;
+      margin: 20px 0 60px 0;
+    }
+
+    /* Pillars Cards Matrix */
+    .pillars-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+    .pillar-card {
+      background: var(--white);
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      padding: 36px;
+      box-shadow: 0 4px 24px rgba(26,86,255,0.08);
+      transition: transform 0.2s;
+    }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+    }
+    .pillar-icon {
+      background: var(--blue-pale);
+      color: var(--blue);
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .pillar-card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .pillar-card p {
+      color: var(--gray);
+      font-size: 0.95rem;
+    }
+
+    .attribution-badge {
+      text-align: center;
+      background: var(--white);
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+      margin-bottom: 20px;
+    }
+    .attribution-badge strong {
+      color: var(--navy);
+    }
+
+    /* ── FOOTER ── */
+    footer { background: var(--navy); color: rgba(255,255,255,0.7); padding: 48px 5vw 24px; }
+    .footer-top { display: flex; gap: 40px; flex-wrap: wrap; margin-bottom: 36px; }
+    .footer-brand { flex: 0 0 200px; }
+    .footer-brand img { height: 100px; width: auto; filter: brightness(0) invert(1); margin-bottom: 12px; }
+    .footer-brand p { font-size: 0.82rem; line-height: 1.6; }
+    .footer-col h4 { color: var(--white); font-size: 0.88rem; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .footer-col ul a { text-decoration: none; color: rgba(255,255,255,0.65); font-size: 0.82rem; transition: color .2s; }
+    .footer-col ul a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.12); padding-top: 18px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 10px; }
+
+    /* ── RESPONSIVE MEDIA QUERIES ── */
+    @media (max-width: 850px) {
+      .intro-grid { grid-template-columns: 1fr; gap: 30px; }
+      .pillars-container { grid-template-columns: 1fr; gap: 24px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-actions .btn-outline, .nav-actions .btn-primary { display: none; }
+      .hamburger { display: flex; }
+      .logo img { height: 48px; }
+      .footer-top { flex-direction: column; gap: 28px; }
+      .footer-brand { flex: 0 0 auto; }
+      .footer-bottom { flex-direction: column; text-align: center; gap: 6px; }
+      
+      .about-hero { padding: 50px 4vw; }
+      .about-hero h1 { font-size: 1.9rem; }
+      .about-hero p { font-size: 0.95rem; }
+      
+      .content-container { padding: 40px 4vw; }
+      .intro-text p { font-size: 0.98rem; }
+      .intro-quote { font-size: 1rem; padding: 18px; }
+      
+      .pillar-card { padding: 24px; }
+      .pillar-card h2 { font-size: 1.25rem; }
+    }
+
+    @media (max-width: 480px) {
+      nav { padding: 12px 4vw; }
+      .logo img { height: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <img src="img/logoreal.png" alt="JobDelite Logo"/>
+  </a>
+  <ul class="nav-links">
+    <li><a href="find-jobs.html">Find Jobs</a></li>
+    <li><a href="companies.html">Companies</a></li>
+    <li><a href="categories.html">Categories</a></li>
+    <li><a href="about.html" class="active">About Us</a></li>
+    <li><a href="blog.html">Blogs</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-outline" onclick="window.location.href='login.html'">Login</button>
+    <button class="btn-primary" onclick="window.location.href='login-employer.html?mode=register&role=employer'">Post a Job</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="find-jobs.html">Find Jobs</a>
+  <a href="companies.html">Companies</a>
+  <a href="categories.html">Categories</a>
+  <a href="about.html" class="active">About Us</a>
+  <a href="blog.html">Blogs</a>
+  <div class="mobile-actions">
+    <button class="btn-outline" style="flex:1" onclick="window.location.href='login.html'">Login</button>
+    <button class="btn-primary" style="flex:1" onclick="window.location.href='login-employer.html?mode=register&role=employer'">Post a Job</button>
+  </div>
+</div>
+
+<header class="about-hero">
+  <h1>About Us</h1>
+  <p>Bridging gaps, building ecosystems, and fostering career trajectories.</p>
+</header>
+
+<main class="content-container">
+  
+  <section class="intro-grid">
+    <div class="intro-text">
+      <p><strong>JobDelite</strong> is a modern job listing and recruitment platform dedicated to connecting talented job seekers with reputable employers. Our mission is to simplify the hiring process by providing a reliable, user-friendly space where opportunities meet talent.</p>
+      <p>We understand the challenges employers face in finding qualified candidates and the difficulties job seekers encounter in securing meaningful employment. That's why JobDelite is built to bridge this gap through efficient job postings, transparent recruitment processes, and quality career opportunities.</p>
+      <p>Whether you are an employer looking to hire top talent or a professional searching for your next career move, JobDelite provides the tools and platform to help you achieve your goals.</p>
+    </div>
+    
+    <div class="intro-quote">
+      "At JobDelite, we believe that every great career starts with the right opportunity, and every successful business starts with the right people."
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="pillars-container">
+    <div class="pillar-card">
+      <div class="pillar-icon">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <h2>Our Vision</h2>
+      <p>To become a trusted and leading employment platform that empowers careers and supports business growth across Africa.</p>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-icon">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="22" y1="12" x2="16" y2="12"/>
+          <line x1="8" y1="12" x2="2" y2="12"/>
+          <line x1="12" y1="2" x2="12" y2="6"/>
+          <line x1="12" y1="18" x2="12" y2="22"/>
+        </svg>
+      </div>
+      <h2>Our Mission</h2>
+      <p>To connect employers with qualified talent through a simple, accessible, and trustworthy recruitment platform.</p>
+    </div>
+  </section>
+
+  <div class="attribution-badge">
+    Powered by <strong>Delite City Solutions</strong>.
+  </div>
+
+</main>
+
+<!-- SYSTEM FOOTER FRAME BASE -->
+<footer>
+  <p>&copy; 2026 JobDelite. All Rights Reserved.</p>
+</footer>
+
+
+<script>
+  // Mobile Nav Toggle Logic
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileNav.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !mobileNav.contains(e.target)) {
+      hamburger.classList.remove('open');
+      mobileNav.classList.remove('open');
+    }
+  });
+</script>
+</body>
+</html>

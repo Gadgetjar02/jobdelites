@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blogs – JobDelite</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --blue: #1a56ff;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff4ff;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(26,86,255,0.10);
+      --radius: 12px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); overflow-x: hidden; }
+
+    /* ── NAVBAR ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 5vw; background: var(--white);
+      position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 1px 0 #e5e7eb;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo img { height: 150px; width: auto; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--navy); transition: color .2s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-outline {
+      padding: 9px 20px; border: 1.5px solid var(--navy); border-radius: 8px;
+      background: transparent; font-size: 0.88rem; font-weight: 600; color: var(--navy);
+      cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .btn-outline:hover { background: var(--navy); color: var(--white); }
+    .btn-primary {
+      padding: 9px 20px; border: none; border-radius: 8px; background: var(--blue);
+      font-size: 0.88rem; font-weight: 600; color: var(--white);
+      cursor: pointer; transition: background .2s, transform .15s; font-family: inherit;
+    }
+    .btn-primary:hover { background: #1240d6; transform: translateY(-1px); }
+
+    /* Hamburger */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--navy); border-radius: 2px; transition: all .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile Nav Drawer */
+    .mobile-nav {
+      display: none; position: fixed; top: 67px; left: 0; right: 0;
+      background: var(--white); padding: 20px 5vw 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      z-index: 190; flex-direction: column; gap: 0;
+      max-height: calc(100vh - 67px); overflow-y: auto;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      display: block; padding: 14px 0; font-size: 1rem; font-weight: 600;
+      color: var(--navy); text-decoration: none; border-bottom: 1px solid #f3f4f6;
+      transition: color .2s;
+    }
+    .mobile-nav a:hover { color: var(--blue); }
+    .mobile-nav .mobile-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .mobile-nav .mobile-actions button { flex: 1; padding: 12px; font-size: 0.95rem; }
+
+    /* ── BLOGS SECTION MAIN DESIGN ── */
+    .blog-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a3a8f 100%);
+      padding: 60px 5vw; text-align: center; color: var(--white);
+    }
+    .blog-hero h1 { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; margin-bottom: 12px; }
+    .blog-hero p { font-size: clamp(0.95rem, 2.5vw, 1.1rem); color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto; }
+
+    .blog-container { padding: 50px 5vw 80px; background-color: var(--light); }
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+    
+    .blog-card {
+      background: var(--white); border-radius: var(--radius); padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #e5e7eb;
+      cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+    .blog-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: var(--blue-light); }
+    
+    .blog-card-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+    .blog-icon-wrapper {
+      width: 48px; height: 48px; background: var(--blue-pale); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .blog-icon-wrapper svg { width: 24px; height: 24px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .blog-card-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--navy); line-height: 1.4; }
+    .blog-card-excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.6em * 4);
+}
+    .blog-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 15px; border-top: 1px solid #f3f4f6; }
+    .blog-tag { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; background: var(--blue-pale); color: var(--blue); }
+    .read-more-text { font-size: 0.85rem; font-weight: 700; color: var(--blue); display: flex; align-items: center; gap: 4px; }
+    
+    /* ── POPUP MODAL ARCHITECTURE ── */
+    .blog-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(13, 27, 75, 0.6); backdrop-filter: blur(4px);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; transition: opacity 0.3s ease;
+    }
+    .blog-modal.open { display: flex; opacity: 1; }
+    .blog-modal-content {
+      background: var(--white); width: 100%; max-width: 800px; max-height: 85vh;
+      border-radius: 16px; overflow-y: auto; padding: 40px; position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15); transform: translateY(30px); transition: transform 0.3s ease;
+    }
+    .blog-modal.open .blog-modal-content { transform: translateY(0); }
+    .modal-close {
+      position: sticky; top: -20px; float: right; margin-right: -20px;
+      width: 36px; height: 36px; background: var(--light); border: none;
+      border-radius: 50%; font-size: 1.2rem; font-weight: bold; color: var(--navy);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: background 0.2s; z-index: 10;
+    }
+    .modal-close:hover { background: #e5e7eb; }
+    
+    /* Article Typography inside Modal */
+    .article-body h1 { font-size: 1.8rem; font-weight: 800; color: var(--navy); margin: 15px 0 20px; line-height: 1.3; }
+    .article-body h2 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin: 30px 0 12px; }
+    .article-body h3 { font-size: 1.1rem; font-weight: 700; color: var(--blue); margin: 24px 0 10px; }
+    .article-body p { font-size: 0.98rem; color: #374151; line-height: 1.7; margin-bottom: 16px; }
+    .article-body ul { margin: 12px 0 20px 20px; }
+    .article-body li { font-size: 0.98rem; color: #374151; line-height: 1.6; margin-bottom: 8px; }
+    .article-body blockquote { background: var(--blue-pale); border-left: 4px solid var(--blue); padding: 14px 20px; margin: 18px 0; border-radius: 0 8px 8px 0; font-style: italic; color: var(--navy); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--navy); color: rgba(255,255,255,0.7); padding: 48px 5vw 24px; }
+    .footer-top { display: flex; gap: 40px; flex-wrap: wrap; margin-bottom: 36px; }
+    .footer-brand { flex: 0 0 200px; }
+    .footer-brand img { height: 100px; width: auto; filter: brightness(0) invert(1); margin-bottom: 12px; }
+    .footer-brand p { font-size: 0.82rem; line-height: 1.6; }
+    .footer-col h4 { color: var(--white); font-size: 0.88rem; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .footer-col ul a { text-decoration: none; color: rgba(255,255,255,0.65); font-size: 0.82rem; transition: color .2s; }
+    .footer-col ul a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.12); padding-top: 18px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 10px; }
+
+    /* ━━━━━━━━━━━━━━━ RESPONSIVE MEDIA QUERIES ━━━━━━━━━━━━━━━ */
+    @media (max-width: 768px) {
+      .nav-links, .nav-actions .btn-outline, .nav-actions .btn-primary { display: none; }
+      .hamburger { display: flex; }
+      .blog-grid { grid-template-columns: 1fr; gap: 20px; }
+      .blog-modal-content { padding: 25px 20px; max-height: 90vh; }
+      .article-body h1 { font-size: 1.45rem; }
+      .article-body h2 { font-size: 1.15rem; }
+      .footer-top { flex-direction: column; gap: 28px; }
+      .footer-brand { flex: 0 0 auto; }
+      .footer-bottom { flex-direction: column; text-align: center; gap: 6px; }
+    }
+    @media (max-width: 480px) {
+      nav { padding: 12px 4vw; }
+      .logo img { height: 32px; }
+      .blog-hero { padding: 40px 4vw; }
+      .blog-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <img src="img/logoreal.png" alt="JobDelite Logo"/>
+  </a>
+  <ul class="nav-links">
+    <li><a href="find-jobs.html">Find Jobs</a></li>
+    <li><a href="companies.html">Companies</a></li>
+    <li><a href="categories.html">Categories</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="blog.html" class="active">Blogs</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-outline" onclick="window.location.href='login.html'">Login</button>
+    <button class="btn-primary" onclick="window.location.href='login-employer.html?mode=register&role=employer'">Post a Job</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="find-jobs.html">Find Jobs</a>
+  <a href="companies.html">Companies</a>
+  <a href="categories.html">Categories</a>
+  <a href="about.html">About Us</a>
+  <a href="blog.html">Blogs</a>
+  <div class="mobile-actions">
+    <button class="btn-outline" style="flex:1" onclick="window.location.href='login.html'">Login</button>
+    <button class="btn-primary" style="flex:1" onclick="window.location.href='login-employer.html?mode=register&role=employer'">Post a Job</button>
+  </div>
+</div>
+
+<section class="blog-hero">
+  <h1>JobDelite Insights</h1>
+  <p>Your go-to repository for premium career strategies, curated interview tips, fraud warnings, and resource management solutions in 2026.</p>
+</section>
+
+<section class="blog-container">
+  <div class="blog-grid">
+    
+    <!-- Blog Card 1 -->
+    <div class="blog-card" onclick="openBlogModal('blog-1')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <h2>How to Create a CV That Gets Interviews</h2>
+        </div>
+        <p class="blog-card-excerpt">Have you ever applied for dozens of jobs and received little or no response? Your CV is your personal marketing tool. Learn how to transform it into an elite recruiter magnet with our structural tips.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Job Search</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 2 -->
+    <div class="blog-card" onclick="openBlogModal('blog-2')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <h2>20 Common Interview Questions and How to Answer Them</h2>
+        </div>
+        <p class="blog-card-excerpt">"We would like to invite you for an interview." Excitement sets in, but so does anxiety. Master the smart strategies to conquer the top 20 structural inquiries confidently without fear.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Interviews</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 3 -->
+    <div class="blog-card" onclick="openBlogModal('blog-3')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </div>
+          <h2>How to Spot and Avoid Fake Job Offers</h2>
+        </div>
+        <p class="blog-card-excerpt">Imagine receiving a high paying message with no interview required. Learn how to identify hidden red flags, evade upfront premium payments, and shield yourself from fraudulent online vectors.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Security</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 4 -->
+    <div class="blog-card" onclick="openBlogModal('blog-4')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 4.91 8.26 12 2"></polygon></svg>
+          </div>
+          <h2>Top Skills Employers Are Looking For In 2026</h2>
+        </div>
+        <p class="blog-card-excerpt">The workspace is changing rapidly. Technical metrics alone aren't enough. Discover why adaptability, digital literacy, and high emotional intelligence are critical cornerstones for securing active careers.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Skills</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 5 -->
+    <div class="blog-card" onclick="openBlogModal('blog-5')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <h2>How Employers Can Find Quality Candidates Faster</h2>
+        </div>
+        <p class="blog-card-excerpt">Finding the perfect hire doesn't have to be long or frustrating. Learn tactical strategies for optimized application screening pipeline processing, brief description configurations, and seamless conversions.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Employers</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 6 -->
+    <div class="blog-card" onclick="openBlogModal('blog-6')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+          </div>
+          <h2>Best Remote Jobs Available in Nigeria in 2026</h2>
+        </div>
+        <p class="blog-card-excerpt">The remote revolution is active across Nigeria. If you possess a laptop, standard power, and high-income remote skill sets, explore top career fields offering unparalleled geo-flexibility right now.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Remote Work</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 7 -->
+    <div class="blog-card" onclick="openBlogModal('blog-7')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+          </div>
+          <h2>Job Search Mistakes to Avoid in 2026</h2>
+        </div>
+        <p class="blog-card-excerpt">Are simple technical implementation missteps standing between you and your ideal career roadmap? Learn how to avoid digital footprint mishaps, blank customization tracking errors, and more.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Career Advice</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 8 (NEW: LinkedIn) -->
+    <div class="blog-card" onclick="openBlogModal('blog-8')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          </div>
+          <h2>How to Build a LinkedIn Profile That Attracts Recruiters</h2>
+        </div>
+        <p class="blog-card-excerpt">If you’re job hunting in 2026, LinkedIn is no longer optional—it’s one of the first places recruiters check before shortlisting candidates. Learn how to create a highly optimized profile today.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Networking</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 9 (NEW: Recruitment Trends) -->
+    <div class="blog-card" onclick="openBlogModal('blog-9')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          </div>
+          <h2>Recruitment Trends Every Employer Should Know</h2>
+        </div>
+        <p class="blog-card-excerpt">Hiring in 2026 is not what it used to be. The competition for top talent is stronger, candidates are more informed, and the tools have evolved. Discover how to stay ahead of the curve.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">HR Trends</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+    <!-- Blog Card 10 (NEW: Young Professionals) -->
+    <div class="blog-card" onclick="openBlogModal('blog-10')">
+      <div>
+        <div class="blog-card-header">
+          <div class="blog-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+          </div>
+          <h2>Career Growth Tips for Young Professionals</h2>
+        </div>
+        <p class="blog-card-excerpt">Starting your career can feel exciting—and a bit overwhelming. Career growth doesn’t happen by accident; discover small, intentional actions to guide your early steps successfully.</p>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-tag">Professional Growth</span>
+        <span class="read-more-text">Read Article →</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── OVERLAY POPUP MODAL WRAPPER ── -->
+<div class="blog-modal" id="blogModal" onclick="closeBlogModal(event)">
+  <div class="blog-modal-content">
+    <button class="modal-close" onclick="forceCloseModal()">&times;</button>
+    <div class="article-body" id="modalArticleBody">
+      <!-- Article content gets dynamically rendered here via Javascript -->
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <img src="img/logo.jpeg" alt="JobDelite Logo"/>
+      <p>Find Jobs. Hire Smarter. Your career journey starts here.</p>
+    </div>
+    <div class="footer-col"><h4>For Job Seekers</h4><ul><li><a href="#">Browse Jobs</a></li><li><a href="#">Companies</a></li><li><a href="#">Career Resources</a></li><li><a href="#">Salary Guide</a></li></ul></div>
+    <div class="footer-col"><h4>For Employers</h4><ul><li><a href="#">Post a Job</a></li><li><a href="#">Browse Talent</a></li><li><a href="#">Pricing</a></li><li><a href="#">HR Tools</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Blog</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Use</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span> Powered by Delite City Solutions © 2026 JobDelite. All rights reserved.</span>
+    <span>Developed by #YAPI</span>
+  </div>
+</footer>
+
+<!-- ── INLINE JAVASCRIPT LOGIC STORAGE CORNER ── -->
+<script>
+  // Mobile Nav Toggle Logic
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileNav.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !mobileNav.contains(e.target)) {
+      hamburger.classList.remove('open');
+      mobileNav.classList.remove('open');
+    }
+  });
+
+  // Structural Article Data Engine Object Repository
+  const blogArticlesData = {
+    'blog-1': `
+      <h1>How to Create a CV That Gets Interviews</h1>
+      <p>Have you ever applied for dozens of jobs and received little or no response? You're not alone. In many cases, the problem isn't a lack of qualifications—it's the CV.</p>
+      <p>Your CV is your personal marketing tool. Before an employer meets you, speaks with you, or invites you for an interview, they see your CV. Within a few seconds, they decide whether to keep reading or move on to the next applicant.</p>
+      <p>The good news is that creating a CV that attracts employers isn't as difficult as many people think. Here are some practical tips to help your CV stand out and increase your chances of landing interviews.</p>
+      <h2>1. Start with a Strong Introduction</h2>
+      <p>The first thing recruiters should see is a brief summary of who you are and what you bring to the table. Think of it as your elevator pitch.</p>
+      <blockquote>"A motivated customer service professional with over three years of experience helping businesses build strong relationships with clients. Passionate about delivering excellent service and contributing to organizational growth."</blockquote>
+      <h2>2. Don't Use the Same CV for Every Job</h2>
+      <p>One of the most common mistakes job seekers make is sending the same CV to every employer. Every job is different, and employers are looking for candidates whose skills match their specific needs.</p>
+      <h2>3. Keep It Clean and Easy to Read</h2>
+      <p>A recruiter may spend less than a minute reviewing your CV. Use clear headings, bullet points, consistent formatting, professional fonts, and adequate spacing.</p>
+      <h2>4. Focus on Achievements, Not Just Duties</h2>
+      <p>Instead of writing: "Handled customer complaints.", try: <strong>"Resolved customer complaints efficiently, contributing to improved customer satisfaction and retention."</strong></p>
+    `,
+    'blog-2': `
+      <h1>20 Common Interview Questions and How to Answer Them</h1>
+      <p>"We would like to invite you for an interview." Excitement sets in, but for many job seekers, so does anxiety. Most interview questions are not designed to trick you. Employers simply want to understand who you are.</p>
+      <h2>1. Tell Me About Yourself</h2>
+      <p>Don't tell your life story. Focus on your professional background, core skills, and active experience metrics.</p>
+      <h2>2. Why Do You Want to Work Here?</h2>
+      <p>Employers want to know if you've done your research. Mention their reputation for innovation or core corporate operations.</p>
+      <h2>3. What Is Your Biggest Weakness?</h2>
+      <p>Be strategic. Choose a genuine operational bottleneck and detail the active measures you use to resolve it.</p>
+    `,
+    'blog-3': `
+      <h1>How to Spot and Avoid Fake Job Offers</h1>
+      <p>Imagine receiving a message that says: "Congratulations! You've been selected for a job that pays ₦500,000 monthly. No interview required." It sounds amazing, but it's a scam.</p>
+      <h2>1. They Ask for Money Upfront</h2>
+      <p>This is an absolute systemic red flag warning marker. No real employer anywhere asks for processing payments, form initialization costs, or registration fees.</p>
+      <h2>2. There's No Proper Interview Process</h2>
+      <p>If you get instantly onboarded via simple instant messenger text chats without standard skills testing loops or rigorous panels, pull back immediately.</p>
+    `,
+    'blog-4': `
+      <h1>Top Skills Employers Are Looking For In 2026</h1>
+      <p>The workspace is changing rapidly. Technical metrics alone aren't enough. Discover why adaptability, digital literacy, and high emotional intelligence are critical cornerstones.</p>
+      <h2>1. Communication Skills</h2>
+      <p>The foundation of business lifecycle progress. It covers clean textual coordination metrics, corporate presentation poise, and active listening loops.</p>
+      <h2>2. Adaptability</h2>
+      <p>With artificial intelligence systems and software automation tools shifting system processes continuously, employees must possess high learning agility indexes.</p>
+    `,
+    'blog-5': `
+      <h1>How Employers Can Find Quality Candidates Faster</h1>
+      <p>Finding the perfect hire doesn't have to be long or frustrating. Learn tactical strategies for optimized application screening pipeline processing.</p>
+      <ul>
+        <li><strong>Precision Descriptions:</strong> Write clear, specific roles rather than generic bullet lists.</li>
+        <li><strong>Skill Focus Matrices:</strong> Filter pipelines using real-world capability requirements.</li>
+        <li><strong>Optimized Platform Deployment:</strong> Deploy your job posts onto targeted, curated networks like JobDelite to meet pre-verified talent matches instantly.</li>
+      </ul>
+    `,
+    'blog-6': `
+      <h1>Best Remote Jobs Available in Nigeria in 2026</h1>
+      <p>The remote revolution is active across Nigeria. If you possess a laptop, standard power, and high-income remote skill sets, explore top career fields offering unparalleled geo-flexibility right now.</p>
+      <h2>1. Customer Support Representative</h2>
+      <p>Managing remote digital service channels, sorting ticketing systems, answering voice lines, and preserving client satisfaction parameters globally.</p>
+      <h2>2. Digital Marketing Specialist</h2>
+      <p>Driving organic optimization pipelines, orchestrating performance search marketing accounts, and managing social content streams.</p>
+    `,
+    'blog-7': `
+      <h1>Job Search Mistakes to Avoid in 2026</h1>
+      <p>Are simple technical implementation missteps standing between you and your ideal career roadmap? Learn how to avoid digital footprint mishaps and blank customization tracking errors.</p>
+      <h2>1. Using the Same CV for Every Application</h2>
+      <p>A generic CV lacks targeted keyword alignment. It will fail AI applicant tracking filters before a human recruiter ever sees it.</p>
+      <h2>2. Having an Unprofessional Online Presence</h2>
+      <p>Recruiters audit your public identity. Ensure your digital footprints showcase polished, value-focused career presentations.</p>
+    `,
+    'blog-8': `
+      <h1>How to Build a LinkedIn Profile That Attracts Recruiters</h1>
+      <p>If you’re job hunting in 2026, LinkedIn is no longer optional—it’s one of the first places recruiters check before shortlisting candidates. In many cases, your profile speaks for you even before you get the chance to speak for yourself.</p>
+      <p>The good news? You don’t need to be a tech expert to build a strong LinkedIn profile. You just need to get a few important things right.</p>
+      
+      <h2>1. Use a Clear and Professional Profile Photo</h2>
+      <p>First impressions matter. Your profile photo should be clear, friendly, and professional. You don’t need an expensive studio shot—just a neat background, good lighting, and a presentable appearance. People connect with people, and a good photo builds trust instantly.</p>
+      
+      <h2>2. Write a Headline That Says More Than Your Job Title</h2>
+      <p>Instead of just writing something like “Accountant” or “Marketing Officer,” make your headline more descriptive.</p>
+      <p>For example:</p>
+      <ul>
+        <li>Accountant | Financial Reporting | Budgeting | Excel Expert</li>
+        <li>Customer Service Professional | Problem Solver | Client Relationship Management</li>
+      </ul>
+      <p>This helps recruiters quickly understand your value.</p>
+      
+      <h2>3. Create a Simple but Strong About Section</h2>
+      <p>Think of your About section as your personal introduction. Don’t overthink it. Just explain: Who you are, what you do, your key skills, and what kind of opportunities you’re looking for. Keep it natural and easy to read.</p>
+      
+      <h2>4. Highlight Your Experience Clearly</h2>
+      <p>Instead of only listing job titles, explain what you actually did in each role. Focus on your responsibilities, your achievements, and the results you contributed to. Whenever possible, include numbers or outcomes. They make your experience more powerful.</p>
+      
+      <h2>5. Add Relevant Skills</h2>
+      <p>Recruiters often search LinkedIn using skills. Make sure you include skills that match your field, such as Communication, Project Management, Digital Marketing, Data Analysis, Customer Service, or Leadership. Keep it relevant and realistic.</p>
+      
+      <h2>6. Get Recommendations if Possible</h2>
+      <p>A short recommendation from a colleague, manager, or client can go a long way. It adds credibility and shows that others value your work.</p>
+      
+      <h2>7. Stay Active on the Platform</h2>
+      <p>You don’t need to post every day, but staying active helps. You can share insights, comment on posts, and engage with industry content. This keeps your profile visible to recruiters.</p>
+      
+      <h2>8. Make Your Profile Easy to Find</h2>
+      <p>To improve visibility: Use keywords related to your job field, update your location, and keep your profile complete. A complete profile ranks better in LinkedIn searches.</p>
+      
+      <h3>Build Your Career Presence</h3>
+      <p>At JobDelite, we encourage job seekers to stay visible, stay prepared, and position themselves for better opportunities. A strong LinkedIn profile could be the step that gets you noticed by your next employer.</p>
+    `,
+    'blog-9': `
+      <h1>Recruitment Trends Every Employer Should Know</h1>
+      <p>Hiring in 2026 is not what it used to be. The competition for top talent is stronger, candidates are more informed, and the tools used in recruitment have evolved. Employers who understand these changes are the ones who attract better candidates faster.</p>
+      <p>If you are involved in hiring, here are some key recruitment trends worth paying attention to.</p>
+      
+      <h2>1. Skills Over Certificates</h2>
+      <p>More employers are now focusing less on degrees and more on what candidates can actually do. Practical skills, real experience, and problem-solving ability are becoming more important than formal qualifications alone. Candidates who can demonstrate value often stand out quickly.</p>
+      
+      <h2>2. Remote and Hybrid Work is Now Normal</h2>
+      <p>Flexible work is no longer a “perk”—it’s expected in many industries. Companies that offer remote or hybrid options tend to attract a wider and more talented pool of applicants, especially younger professionals.</p>
+      
+      <h2>3. Faster Hiring Decisions Win Better Candidates</h2>
+      <p>Top candidates don’t stay available for long. Long recruitment processes often lead to losing good talent to faster competitors. Employers are now streamlining interviews and reducing unnecessary steps to speed up hiring.</p>
+      
+      <h2>4. Employer Branding Matters More Than Ever</h2>
+      <p>Job seekers now research companies before applying. They check reviews, social media presence, and how employees talk about the organization. A strong employer brand can make recruitment easier without extra effort.</p>
+      
+      <h2>5. Digital Recruitment Tools Are Taking Over</h2>
+      <p>From applicant tracking systems to AI-assisted screening, technology is making recruitment more efficient. These tools help employers sort applications faster and identify strong candidates more quickly—but human judgment is still essential.</p>
+      
+      <h2>6. Soft Skills Are Highly Valued</h2>
+      <p>Beyond technical ability, employers are prioritizing communication, adaptability, emotional intelligence, and teamwork. These skills often determine how well a candidate fits into a company culture.</p>
+      
+      <h3>Hiring Smarter in 2026</h3>
+      <p>At JobDelite, we help employers connect with qualified candidates faster through smarter and more targeted recruitment strategies. The future of hiring is already here—staying ahead makes all the difference.</p>
+    `,
+    'blog-10': `
+      <h1>Career Growth Tips for Young Professionals</h1>
+      <p>Starting your career can feel exciting—and a bit overwhelming. One moment you’re celebrating your first job, and the next, you’re already thinking about how to grow, stand out, and move forward.</p>
+      <p>The truth is, career growth doesn’t happen by accident. It’s built through small, intentional actions over time. If you’re a young professional trying to figure things out, here are some simple but powerful tips to guide you.</p>
+      
+      <h2>1. Take Your Work Seriously, Even If the Role Feels Small</h2>
+      <p>Every task you handle matters more than you think. Whether you’re answering emails, managing files, or assisting customers, do it well. Many big opportunities come from people who were trusted in small responsibilities first.</p>
+      
+      <h2>2. Keep Learning Outside Your Job Description</h2>
+      <p>Don’t limit yourself to what your job requires. Learn new skills, take online courses, read industry content, and stay curious. The more you grow, the more valuable you become.</p>
+      
+      <h2>3. Find Mentors and Learn From Others</h2>
+      <p>You don’t have to figure everything out alone. Having people who are a bit ahead of you in their careers can save you years of trial and error. Ask questions, observe, and learn from their experience.</p>
+      
+      <h2>4. Build Good Relationships at Work</h2>
+      <p>Your skills matter, but so do your relationships. Be respectful, reliable, and easy to work with. Many career opportunities come through people who trust you, not just job applications.</p>
+      
+      <h2>5. Learn How to Communicate Clearly</h2>
+      <p>Whether in meetings, emails, or conversations, how you express yourself matters. Clear communication helps you avoid misunderstandings and makes you stand out as professional and confident.</p>
+      
+      <h2>6. Don’t Be Afraid of Feedback</h2>
+      <p>Feedback is not criticism—it’s direction. Instead of getting defensive, learn to listen, reflect, and improve. People who grow fast are often the ones who take feedback seriously.</p>
+      
+      <h2>7. Be Patient, But Stay Consistent</h2>
+      <p>Career growth is not always fast. Sometimes it feels slow or uncertain. But consistency always wins. Keep showing up, keep improving, and keep building your skills.</p>
+      
+      <h3>Grow With Purpose</h3>
+      <p>At JobDelite, we believe young professionals can achieve more when they have the right guidance and opportunities. Stay committed to your growth—the results will come with time.</p>
+    `
+  };
+
+  // POPUP ENGINE MODAL CONTROLLER LOGIC
+  const modalElement = document.getElementById('blogModal');
+  const modalBodyContent = document.getElementById('modalArticleBody');
+
+  function openBlogModal(articleId) {
+    const contentHtml = blogArticlesData[articleId];
+    if (contentHtml) {
+      modalBodyContent.innerHTML = contentHtml;
+      modalElement.classList.add('open');
+      document.body.style.overflow = 'hidden'; // Lock background scrolling
+    }
+  }
+
+  function closeBlogModal(event) {
+    if (event.target === modalElement) {
+      forceCloseModal();
+    }
+  }
+
+  function forceCloseModal() {
+    modalElement.classList.remove('open');
+    document.body.style.overflow = ''; // Restore background scrolling
+    setTimeout(() => {
+      modalBodyContent.innerHTML = '';
+    }, 300);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalElement.classList.contains('open')) {
+      forceCloseModal();
+    }
+  });
+</script>
+</body>
+</html>
