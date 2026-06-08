@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Portal Workspace – JobDelite</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --blue: #1a56ff;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff4ff;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #ffffff;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --shadow: 0 4px 24px rgba(26,86,255,0.08);
+      --radius: 12px;
+    }
+    body { 
+      font-family: 'DM Sans', sans-serif; 
+      color: var(--navy); 
+      background: var(--light); 
+      min-height: 100vh; 
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden; 
+    }
+
+    /* ── AUTHENTICATION GATEWAY LAYER ── */
+    #auth-gateway {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: var(--light); display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 16px; transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    #auth-gateway.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .auth-card {
+      background: var(--white); width: 100%; max-width: 420px; padding: 32px 24px;
+      border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid #e5e7eb;
+    }
+    .auth-header { text-align: center; margin-bottom: 24px; }
+    .auth-logo { font-size: 1.5rem; font-weight: 800; color: var(--navy); text-decoration: none; display: inline-block; margin-bottom: 6px; }
+    .auth-logo span { color: var(--blue); }
+    .auth-logo-img-link {
+      display: block;
+      width: 100%;
+      max-width: 220px;
+      margin: 0 auto 8px;
+    }
+    .auth-logo-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+      color: var(--navy); font-weight: 800; font-size: 1.2rem;
+    }
+    .brand.auth-logo-img-link {
+      width: auto;
+      max-width: 160px;
+      margin: 0;
+    }
+    .brand.auth-logo-img-link .auth-logo-image {
+      width: 100%;
+      height: auto;
+    }
+    .auth-tagline { font-size: 0.88rem; color: var(--gray); font-weight: 500; }
+    
+    /* ── HEADER NAVIGATION ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 4vw; background: var(--white); box-shadow: 0 1px 0 #e5e7eb;
+      position: sticky; top: 0; z-index: 200; height: 68px;
+    }
+    .brand { display: flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 800; color: var(--navy); font-size: 1.2rem; }
+    .brand span { color: var(--blue); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .admin-badge { background: var(--navy); color: var(--white); font-size: 0.7rem; padding: 5px 10px; border-radius: 100px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 8px; margin-right: -4px; }
+    .menu-toggle span { display: block; width: 22px; height: 2px; background: var(--navy); border-radius: 2px; transition: 0.3s; }
+    .menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── WORKSPACE LAYOUT FRAME ── */
+    .workspace { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 68px); position: relative; }
+    
+    /* Sidebar Drawer Navigation */
+    aside { background: var(--white); border-right: 1px solid #e5e7eb; padding: 24px 16px; display: flex; flex-direction: column; gap: 6px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    aside a {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      color: var(--gray); font-size: 0.92rem; font-weight: 600; text-decoration: none;
+      border-radius: 8px; transition: all 0.2s; cursor: pointer;
+    }
+    aside a:hover { background: var(--blue-pale); color: var(--blue); }
+    aside a.active { background: var(--blue); color: var(--white); }
+    
+    /* Main Content Container Viewport */
+    main { padding: 32px 4vw; overflow-y: auto; width: 100%; }
+    .view-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; color: var(--navy); letter-spacing: -0.5px; }
+    .view-subtitle { font-size: 0.88rem; color: var(--gray); margin-bottom: 24px; line-height: 1.4; }
+
+    /* ── PANELS & DATA MATRICES ── */
+    .panel { background: var(--white); border-radius: var(--radius); border: 1px solid #e5e7eb; box-shadow: var(--shadow); margin-bottom: 24px; overflow: hidden; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; background: var(--white); }
+    .panel-title { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    
+    .table-responsive { width: 100%; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    th { background: var(--light); padding: 12px 20px; font-weight: 600; color: var(--gray); border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+    td { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; color: var(--navy); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    
+    .status-badge { display: inline-flex; padding: 4px 10px; font-size: 0.75rem; font-weight: 600; border-radius: 100px; white-space: nowrap; }
+    .status-verified { background: #ecfdf5; color: var(--success); }
+    .status-pending { background: #fffbeb; color: var(--warning); }
+    .status-flagged { background: #fef2f2; color: var(--danger); }
+
+    /* Forms Architecture Layout */
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full-width { grid-column: span 2; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--navy); }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 12px 14px; border: 1.5px solid #d1d5db; border-radius: 8px;
+      font-family: inherit; font-size: 0.88rem; color: var(--navy); outline: none; transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue); }
+    .form-actions-panel { padding: 0 20px 20px; display: flex; justify-content: flex-end; }
+
+    /* Action Interactive Utility Elements */
+    .btn { padding: 11px 22px; font-family: inherit; font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; -webkit-tap-highlight-color: transparent; }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 6px; }
+    .btn-primary { background: var(--blue); color: var(--white); }
+    .btn-primary:hover { background: #1240d6; }
+    .btn-success { background: var(--success); color: var(--white); }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-outline { background: transparent; border: 1.5px solid #d1d5db; color: var(--gray); }
+    .btn-outline:hover { background: var(--light); color: var(--navy); }
+    .btn-block { width: 100%; }
+
+    /* View Visibility Engine Switches */
+    .view-section { display: none; }
+    .view-section.active { display: block; animation: viewFade 0.2s ease-out; }
+    @keyframes viewFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Sidebar Drawer Backdrop Mask overlay layer */
+    .sidebar-overlay { display: none; position: fixed; top: 68px; bottom: 0; left: 0; right: 0; background: rgba(13,27,75,0.25); z-index: 90; backdrop-filter: blur(2px); }
+
+    /* ── MOBILE VIEWPORT ADAPTIVE MEDIA DECORATIONS ── */
+    @media (max-width: 992px) {
+      header { padding: 14px 16px; }
+      .admin-badge { max-width: 110px; font-size: 0.65rem; padding: 4px 8px; }
+      .workspace { grid-template-columns: 1fr; min-height: calc(100vh - 68px); }
+      
+      aside { position: fixed; top: 68px; bottom: 0; left: 0; width: 260px; z-index: 100; transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.05); }
+      aside.open { transform: translateX(0); }
+      .menu-toggle { display: flex; }
+      .sidebar-overlay.active { display: block; }
+      
+      main { padding: 20px 16px; }
+      .form-grid { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
+      .form-group.full-width { grid-column: span 1; }
+      .form-actions-panel { padding: 0 16px 16px; }
+      .form-actions-panel .btn { width: 100%; }
+
+      /* Convert regular tables layout seamlessly into clean presentation card matrices */
+      table, thead, tbody, th, td, tr { display: block; width: 100%; }
+      thead { display: none; } 
+      tr { background: var(--white); border-bottom: 8px solid var(--light); padding: 16px; position: relative; }
+      tr:last-child { border-bottom: none; }
+      td { border-bottom: 1px dashed #f0f2f5; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; text-align: right; font-size: 0.85rem; }
+      td:last-child { border-bottom: none; padding-bottom: 0; padding-top: 12px; justify-content: flex-end; }
+      
+      td::before { content: attr(data-label); font-weight: 700; color: var(--gray); text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
+      td strong { font-weight: 600; color: var(--navy); }
+      td div { justify-content: flex-end; width: 100%; gap: 6px; }
+      .btn-sm { width: 100%; justify-content: center; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="auth-gateway">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="index.html" class="auth-logo-img-link" aria-label="JobDelite Home Page">
+        <img src="../img/logoreal.png" alt="JobDelite Logo" class="auth-logo-image" />
+        </a>
+        <div class="auth-tagline"><b>Welcome! </b> JobDelite Boss</div>
+      </div>
+      <form id="admin-login-form" onsubmit="executeAdminAuthentication(event)">
+        <div class="form-grid" style="grid-template-columns: 1fr; padding: 0 0 16px 0; gap: 14px;">
+          <div class="form-group">
+            <label for="login-email">Admin Email</label>
+            <input type="email" id="login-email" placeholder="admin@jobdelite.com" required />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Access Key</label>
+            <input type="password" id="login-password" placeholder="••••••••" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <header>
+    <a href="index.html" class="brand auth-logo-img-link" aria-label="JobDelite Home Page">
+      <img src="../img/logoreal.png" alt="JobDelite Logo" class="auth-logo-image" />
+    </a>
+    <div class="header-right">
+      <div class="admin-badge" id="current-user-badge">Root Admin</div>
+      <button class="btn btn-outline btn-sm" style="padding: 5px 10px;" onclick="executeAdminSignout()">Exit</button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation Workspace Drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="workspace">
+    
+    <aside id="sidebarMenu">
+  <a onclick="switchAdminView('jobs')" class="sidebar-link active" id="link-jobs">
+    <span class="clipart-icon icon-blue">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+    </span>
+    Manage Job Listings
+  </a>
+
+  <a onclick="switchAdminView('employers')" class="sidebar-link" id="link-employers">
+    <span class="clipart-icon icon-green">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.952 11.952 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+      </svg>
+    </span>
+    Employer Verification
+  </a>
+
+  <a onclick="switchAdminView('subadmins')" class="sidebar-link" id="link-subadmins">
+    <span class="clipart-icon icon-navy">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+    </span>
+    Manage Sub-Admins
+  </a>
+
+  <a onclick="switchAdminView('hero')" class="sidebar-link" id="link-hero">
+    <span class="clipart-icon icon-orange">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+    </span>
+    Hero Image Scroller
+  </a>
+
+  <a onclick="switchAdminView('blogs')" class="sidebar-link" id="link-blogs">
+    <span class="clipart-icon icon-purple">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+      </svg>
+    </span>
+    Manage Blog System
+  </a>
+</aside>
+
+    <main>
+      
+      <section id="view-jobs" class="view-section active">
+        <h1 class="view-title">Manage Job Listings</h1>
+        <p class="view-subtitle">Add new postings, review status rules, and authorize listings before they go live on find-jobs.html.</p>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Post a New Job Card</h2>
+          </div>
+          <form id="add-job-form" onsubmit="executeJobCreation(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="job-title">Job Position Title</label>
+                <input type="text" id="job-title" placeholder="e.g. Senior Frontend Developer" required />
+              </div>
+              <div class="form-group">
+                <label for="job-company">Company Brand Name</label>
+                <input type="text" id="job-company" placeholder="e.g. Google" required />
+              </div>
+              <div class="form-group">
+                <label for="job-location">Workspace Location</label>
+                <input type="text" id="job-location" placeholder="e.g. Lagos, Nigeria" required />
+              </div>
+              <div class="form-group">
+                <label for="job-salary">Annual Remuneration Range</label>
+                <input type="text" id="job-salary" placeholder="e.g. $90k–$120k" required />
+              </div>
+              <div class="form-group">
+                <label for="job-commitment">Employment Type</label>
+                <select id="job-commitment">
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Internship">Internship</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="job-workspace">Workspace Protocol</label>
+                <select id="job-workspace">
+                  <option value="Entry-Level Jobs">Entry-Level Jobs</option>
+                  <option value="Mid-Level Jobs">Mid-Level Jobs</option>
+                  <option value="Senior-Level Jobs">Senior-Level Jobs</option>
+                  <option value="Executive Jobs">Executive Jobs</option>
+                  <option value="Full-Time Jobs">Full-Time Jobs</option>
+                  <option value="Part-Time Jobs">Part-Time Jobs</option>
+                  <option value="Contract Jobs">Contract Jobs</option>
+                  <option value="Remote Jobs">Remote Jobs</option>
+                  <option value="Hybrid Jobs">Hybrid Jobs</option>
+                  <option value="Internship Jobs">Internship Jobs</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions-panel">
+              <button type="submit" class="btn btn-primary">➕ Create Job (Saves to Draft Queue)</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Live Active Job Registries & Approval Center</h2>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Job Card Identity</th>
+                  <th>Company Info</th>
+                  <th>Location Profile</th>
+                  <th>Salary Window</th>
+                  <th>Protocol Category</th>
+                  <th>User View Status</th>
+                  <th>Approval Actions</th>
+                </tr>
+              </thead>
+              <tbody id="jobs-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-employers" class="view-section">
+        <h1 class="view-title">Employer Integrity Workspace</h1>
+        <p class="view-subtitle">Enforce active verification steps to guarantee anti-scam prevention requirements.</p>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Corporate Verifications</h2>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Corporate Business Entity</th>
+                  <th>Registration License</th>
+                  <th>Submitted Domain</th>
+                  <th>Security Vetting State</th>
+                  <th>Operational Action Execution</th>
+                </tr>
+              </thead>
+              <tbody id="employers-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-subadmins" class="view-section">
+        <h1 class="view-title">Sub-Admin Control Panel</h1>
+        <p class="view-subtitle">Provision, monitor, and configure platform management permissions parameters for operational staff accounts.</p>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Provision New Sub-Admin Account</h2>
+          </div>
+          <form id="add-subadmin-form" onsubmit="executeSubAdminCreation(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="sub-name">Full Staff Name</label>
+                <input type="text" id="sub-name" placeholder="e.g. Jane Doe" required />
+              </div>
+              <div class="form-group">
+                <label for="sub-email">Corporate Email Address</label>
+                <input type="email" id="sub-email" placeholder="e.g. jane@jobdelite.com" required />
+              </div>
+              <div class="form-group">
+                <label for="sub-role">System Assignment Role</label>
+                <select id="sub-role">
+                  <option value="Moderator">Content Moderator</option>
+                  <option value="Support Agent">Vetting Support Specialist</option>
+                  <option value="Operations Senior">Operations Analyst</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="sub-password">Gateway Access Key Passphrase</label>
+                <input type="password" id="sub-password" placeholder="Minimum 6 characters" required />
+              </div>
+            </div>
+            <div class="form-actions-panel">
+              <button type="submit" class="btn btn-primary">👤 Deploy Operator Profile</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Active Platform Operators Directory</h2>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Staff Operator</th>
+                  <th>Operational Contact Email</th>
+                  <th>System Access Level Role</th>
+                  <th>Assigned Status</th>
+                  <th>Account Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subadmins-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-hero" class="view-section">
+        <h1 class="view-title">Hero Carousel Asset Management</h1>
+        <p class="view-subtitle">Manage or change active scroll-bar pictures used on index.html's Dynamic Image Carousel.</p>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Upload a Slide Picture Asset</h2>
+          </div>
+          <form id="hero-upload-form" onsubmit="executeHeroSlideUpload(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="hero-title">Picture Identity Title</label>
+                <input type="text" id="hero-title" placeholder="e.g. Modern Office Workspace" required/>
+              </div>
+              <div class="form-group">
+                <label for="hero-url">Image Asset File Location URL / Path</label>
+                <input type="text" id="hero-url" placeholder="e.g. assets/hero-office.jpg" required/>
+              </div>
+            </div>
+            <div class="form-actions-panel">
+              <button type="submit" class="btn btn-primary">🖼️ Link Slide Picture Asset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Current Asset Queue Array</h2>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sequence Index</th>
+                  <th>Asset Title Label</th>
+                  <th>File Location Address Reference</th>
+                  <th>System Actions</th>
+                </tr>
+              </thead>
+              <tbody id="hero-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-blogs" class="view-section">
+        <h1 class="view-title">Manage Article Hub Engine</h1>
+        <p class="view-subtitle">Control the knowledge content base linked inside blog.html rendering into popup modal windows.</p>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Publish Knowledge Article Entry</h2>
+          </div>
+          <form id="blog-creation-form" onsubmit="executeBlogPublish(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="blog-id">Article Reference ID (Unique CamelCase Key)</label>
+                <input type="text" id="blog-id" placeholder="e.g. guideSevenCareerGrowth" required/>
+              </div>
+              <div class="form-group">
+                <label for="blog-title-text">Article Display Headline</label>
+                <input type="text" id="blog-title-text" placeholder="e.g. 7 Rules of Career Growth" required/>
+              </div>
+              <div class="form-group full-width">
+                <label for="blog-html-content">Article Dynamic Modal Render Body Content (Raw Structural HTML)</label>
+                <textarea id="blog-html-content" rows="6" placeholder="<h2>Your Header</h2> <p>Insert paragraphs here...</p>" required></textarea>
+              </div>
+            </div>
+            <div class="form-actions-panel">
+              <button type="submit" class="btn btn-success">📰 Inject Article Content</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Active Database Articles Records</h2>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>System Reference Key Code</th>
+                  <th>Article Headline Context</th>
+                  <th>HTML Character Size Profile</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="blogs-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    /* ==========================================
+       1. REGISTERED DATA ENGINE CORE LOOKUPS 
+       ========================================== */
+    let datasetAdmins = [
+      { name: "Root Administrator", email: "admin@jobdelite.com", pass: "admin123", role: "Root Admin" },
+      { name: "Alexander Delite", email: "alex@jobdelite.com", pass: "subadmin456", role: "Operations Senior" }
+    ];
+
+    let datasetJobs = [
+      { id: 1, title: 'Senior UX Designer', company: 'Delite City Solutions', location: 'Remote · Nigeria', salary: '$70k–$90k', commitment: 'Full-time', workspace: 'Remote Jobs', status: 'Verified' },
+      { id: 2, title: 'Frontend Engineer', company: 'Paystack', location: 'Ikeja · Lagos', salary: '$50k–$65k', commitment: 'Full-time', workspace: 'Hybrid Jobs', status: 'Verified' },
+      { id: 3, title: 'DevOps Architect', company: 'Interswitch', location: 'On-site · Nigeria', salary: '$110k–$130k', commitment: 'Contract', workspace: 'Senior-Level Jobs', status: 'Pending Review' }
+    ];
+
+    let datasetEmployers = [
+      { id: 1, name: 'Delite City Solutions', license: 'RC-1849204', website: 'delitecity.com', state: 'Verified' },
+      { id: 2, name: 'Apex Freelance Agency Co.', license: 'None Provided', website: 'apex-earn-quick.biz', state: 'Flagged' }
+    ];
+
+    let datasetHeroSlides = [
+      { id: 1, title: 'Professional Team Meeting Hero Landscape', url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c' }
+    ];
+
+    let datasetBlogs = [
+      { id: 'guideSevenCareerGrowth', title: '7 Rules of Career Growth for Young Professionals', length: 1450 }
+    ];
+
+    /* ==========================================
+       2. LOGIN & SECURITY SESSIONS CONTROLLER
+       ========================================== */
+    function executeAdminAuthentication(event) {
+      event.preventDefault();
+      const emailInput = document.getElementById('login-email').value.trim();
+      const passInput = document.getElementById('login-password').value;
+
+      const accountMatch = datasetAdmins.find(account => account.email.toLowerCase() === emailInput.toLowerCase() && account.pass === passInput);
+
+      if (accountMatch) {
+        document.getElementById('auth-gateway').classList.add('hidden');
+        document.getElementById('current-user-badge').innerText = accountMatch.name;
+        initializePlatformWorkspaceViews();
+      } else {
+        alert("Security Denial: Invalid administrative email or access key passphrase.");
+      }
+    }
+
+    function executeAdminSignout() {
+      if(confirm("Terminate live administration control panel session parameters securely?")) {
+        document.getElementById('admin-login-form').reset();
+        document.getElementById('auth-gateway').classList.remove('hidden');
+      }
+    }
+
+    /* ==========================================
+       3. WORKSPACE VIEWS DISPLAY HANDLER 
+       ========================================== */
+    function switchAdminView(targetViewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+
+      document.getElementById('view-' + targetViewId).classList.add('active');
+      document.getElementById('link-' + targetViewId).classList.add('active');
+
+      if (window.innerWidth <= 992) {
+        toggleMobileLayoutDrawer();
+      }
+    }
+
+    function toggleMobileLayoutDrawer() {
+      document.getElementById('menuToggle').classList.toggle('open');
+      document.getElementById('sidebarMenu').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    document.getElementById('menuToggle').addEventListener('click', toggleMobileLayoutDrawer);
+    document.getElementById('sidebarOverlay').addEventListener('click', toggleMobileLayoutDrawer);
+
+    /* ==========================================
+       4. DYNAMIC TABLES PROPAGATION ENGINES
+       ========================================== */
+    function initializePlatformWorkspaceViews() {
+      renderJobsInterface();
+      renderEmployersInterface();
+      renderSubAdminsInterface();
+      renderHeroCarouselInterface();
+      renderBlogsInterface();
+    }
+
+    function renderJobsInterface() {
+      const targetBody = document.getElementById('jobs-table-body');
+      targetBody.innerHTML = '';
+      
+      datasetJobs.forEach(job => {
+        let isVerified = job.status === 'Verified';
+        let badgeClass = isVerified ? 'status-verified' : 'status-pending';
+        let simulatedUserVisibilityText = isVerified ? 'Visible to Users' : 'Hidden from Users';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Job Card Identity"><strong>${escapeStringHtml(job.title)}</strong></td>
+          <td data-label="Company Info">${escapeStringHtml(job.company)}</td>
+          <td data-label="Location Profile">${escapeStringHtml(job.location)}</td>
+          <td data-label="Salary Window"><span style="font-weight:700; color:var(--blue)">${escapeStringHtml(job.salary)}</span></td>
+          <td data-label="Protocol Category"><span style="color:var(--gray); font-weight:500;">${escapeStringHtml(job.workspace)}</span></td>
+          <td data-label="User View Status">
+            <span class="status-badge ${badgeClass}" title="${simulatedUserVisibilityText}">${escapeStringHtml(job.status)}</span>
+          </td>
+          <td data-label="Approval Actions">
+            <div style="display:flex; gap:6px;">
+              ${!isVerified ? 
+                `<button class="btn btn-success btn-sm" onclick="toggleJobVerification(${job.id}, 'Verified')">🛡️ Verify Job</button>` : 
+                `<button class="btn btn-outline btn-sm" onclick="toggleJobVerification(${job.id}, 'Pending Review')">🛑 Hold Review</button>`
+              }
+              <button class="btn btn-danger btn-sm" onclick="executeJobDeletion(${job.id})">🗑️ Delete</button>
+            </div>
+          </td>
+        `;
+        targetBody.appendChild(row);
+      });
+    }
+
+    function toggleJobVerification(id, targetStatus) {
+      const targetJob = datasetJobs.find(j => j.id === id);
+      if (targetJob) {
+        targetJob.status = targetStatus;
+        renderJobsInterface();
+        if (targetStatus === 'Verified') {
+          alert(`Approved: "${targetJob.title}" is now verified and live for job seekers!`);
+        } else {
+          alert(`Status Updated: "${targetJob.title}" has been moved back to drafts (hidden from users).`);
+        }
+      }
+    }
+
+    function renderSubAdminsInterface() {
+      const targetBody = document.getElementById('subadmins-table-body');
+      targetBody.innerHTML = '';
+
+      datasetAdmins.forEach((admin, index) => {
+        const isRoot = admin.role === 'Root Admin';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Staff Operator"><strong>${escapeStringHtml(admin.name)}</strong></td>
+          <td data-label="Contact Email"><code>${escapeStringHtml(admin.email)}</code></td>
+          <td data-label="Access Role"><span style="font-weight: 600; color: var(--blue);">${escapeStringHtml(admin.role)}</span></td>
+          <td data-label="Assigned Status"><span class="status-badge status-verified">Active Account</span></td>
+          <td data-label="Account Actions">
+            ${isRoot ? '<span style="font-size:0.78rem; color:var(--gray); font-style:italic;">System Protected</span>' : 
+            `<button class="btn btn-danger btn-sm" onclick="executeSubAdminRevocation(${index})">Revoke Access</button>`}
+          </td>
+        `;
+        targetBody.appendChild(row);
+      });
+    }
+
+    function renderEmployersInterface() {
+      const targetBody = document.getElementById('employers-table-body');
+      targetBody.innerHTML = '';
+      datasetEmployers.forEach(emp => {
+        let stateClass = emp.state === 'Verified' ? 'status-verified' : (emp.state === 'Flagged' ? 'status-flagged' : 'status-pending');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Corporate Business Entity"><strong>${escapeStringHtml(emp.name)}</strong></td>
+          <td data-label="Registration License"><code>${escapeStringHtml(emp.license)}</code></td>
+          <td data-label="Submitted Domain"><a href="#" style="color:var(--blue); font-weight:600">${escapeStringHtml(emp.website)}</a></td>
+          <td data-label="Vetting State"><span class="status-badge ${stateClass}">${emp.state}</span></td>
+          <td data-label="Action Execution">
+            <div style="display:flex; gap:6px;">
+              ${emp.state !== 'Verified' ? `<button class="btn btn-success btn-sm" onclick="updateEmployerState(${emp.id}, 'Verified')">🛡️ Verify</button>` : ''}
+              ${emp.state !== 'Flagged' ? `<button class="btn btn-danger btn-sm" onclick="updateEmployerState(${emp.id}, 'Flagged')">🛑 Block</button>` : ''}
+            </div>
+          </td>
+        `;
+        targetBody.appendChild(row);
+      });
+    }
+
+    function renderHeroCarouselInterface() {
+      const targetBody = document.getElementById('hero-table-body');
+      targetBody.innerHTML = '';
+      datasetHeroSlides.forEach((slide, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Sequence Index"><code>[${index}]</code></td>
+          <td data-label="Asset Title Label"><strong>${escapeStringHtml(slide.title)}</strong></td>
+          <td data-label="URL Reference">${escapeStringHtml(slide.url)}</td>
+          <td data-label="System Actions"><button class="btn btn-danger btn-sm" onclick="executeHeroDeletion(${slide.id})">Unlink</button></td>
+        `;
+        targetBody.appendChild(row);
+      });
+    }
+
+    function renderBlogsInterface() {
+      const targetBody = document.getElementById('blogs-table-body');
+      targetBody.innerHTML = '';
+      datasetBlogs.forEach(blog => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="System Reference"><code>${escapeStringHtml(blog.id)}</code></td>
+          <td data-label="Article Headline"><strong>${escapeStringHtml(blog.title)}</strong></td>
+          <td data-label="Size Profile">${blog.length} Chars</td>
+          <td data-label="Action"><button class="btn btn-danger btn-sm" onclick="executeBlogDeletion('${blog.id}')">Delete</button></td>
+        `;
+        targetBody.appendChild(row);
+      });
+    }
+
+    /* ==========================================
+       5. INTERACTIVE MUTATION TRANSACTION ACTIONS
+       ========================================== */
+    function executeJobCreation(event) {
+      event.preventDefault();
+      datasetJobs.unshift({
+        id: Date.now(),
+        title: document.getElementById('job-title').value,
+        company: document.getElementById('job-company').value,
+        location: document.getElementById('job-location').value,
+        salary: document.getElementById('job-salary').value,
+        commitment: document.getElementById('job-commitment').value,
+        workspace: document.getElementById('job-workspace').value,
+        status: 'Pending Review'
+      });
+      renderJobsInterface();
+      document.getElementById('add-job-form').reset();
+      alert('Success: New job listing added to draft queue. Please click "Verify Job" below to publish it to users.');
+    }
+
+    function executeJobDeletion(id) {
+      if(confirm("Delete this listing representation?")) {
+        datasetJobs = datasetJobs.filter(j => j.id !== id);
+        renderJobsInterface();
+      }
+    }
+
+    function executeSubAdminCreation(event) {
+      event.preventDefault();
+      const name = document.getElementById('sub-name').value.trim();
+      const email = document.getElementById('sub-email').value.trim();
+      const role = document.getElementById('sub-role').value;
+      const pass = document.getElementById('sub-password').value;
+
+      if(pass.length < 6) {
+        alert("Provisioning Error: Access keys must contain at least 6 characters.");
+        return;
+      }
+      if(datasetAdmins.some(account => account.email.toLowerCase() === email.toLowerCase())) {
+        alert("Collision Alert: An operator with this email address is already provisioned.");
+        return;
+      }
+
+      datasetAdmins.push({ name, email, pass, role });
+      renderSubAdminsInterface();
+      document.getElementById('add-subadmin-form').reset();
+      alert(`Success: System administrative access granted to ${name}.`);
+    }
+
+    function executeSubAdminRevocation(index) {
+      if(confirm("Confirm security revocation? This user will lose workspace capabilities immediately.")) {
+        datasetAdmins.splice(index, 1);
+        renderSubAdminsInterface();
+      }
+    }
+
+    function updateEmployerState(id, newState) {
+      const targetObj = datasetEmployers.find(e => e.id === id);
+      if(targetObj) { targetObj.state = newState; renderEmployersInterface(); }
+    }
+
+    function executeHeroSlideUpload(event) {
+      event.preventDefault();
+      datasetHeroSlides.push({ id: Date.now(), title: document.getElementById('hero-title').value, url: document.getElementById('hero-url').value });
+      renderHeroCarouselInterface();
+      document.getElementById('hero-upload-form').reset();
+    }
+
+    function executeHeroDeletion(id) { datasetHeroSlides = datasetHeroSlides.filter(s => s.id !== id); renderHeroCarouselInterface(); }
+
+    function executeBlogPublish(event) {
+      event.preventDefault();
+      const id = document.getElementById('blog-id').value.trim();
+      if(datasetBlogs.some(b => b.id === id)) { alert("Duplicate key!"); return; }
+      datasetBlogs.unshift({ id, title: document.getElementById('blog-title-text').value, length: document.getElementById('blog-html-content').value.length });
+      renderBlogsInterface();
+      document.getElementById('blog-creation-form').reset();
+    }
+
+    function executeBlogDeletion(id) { datasetBlogs = datasetBlogs.filter(b => b.id !== id); renderBlogsInterface(); }
+
+    function escapeStringHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
